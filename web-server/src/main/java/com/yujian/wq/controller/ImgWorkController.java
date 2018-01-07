@@ -36,16 +36,13 @@ public class ImgWorkController {
     public ModelAndView showIndex(HttpServletResponse response) throws IOException {
         ModelAndView mav = new ModelAndView("fav");
         mav.getModel().put("pageName", "首页");
-        List<String> list = FileUtils.readLines(new File(tagPath),"utf-8");
-        if (list != null) {
-            mav.getModel().put("tagList", list);
-        }
+
         return mav;
     }
 
 
     @RequestMapping(value = {"/tempimg"}, method = RequestMethod.GET)
-    public ModelAndView showImg(HttpServletResponse response) {
+    public ModelAndView showImg(Integer order, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("fav");
         mav.getModel().put("pageName", "首页");
         ServletOutputStream out = null;
@@ -55,7 +52,7 @@ public class ImgWorkController {
             File[] list = tempFile.listFiles();
 
 
-            if (list != null && list.length > 0) {
+            if (list != null && list.length > 0 && list.length >= (order + 1)) {
                 Arrays.sort(list, new Comparator<File>() {
                     public int compare(File f1, File f2) {
                         long diff = f1.lastModified() - f2.lastModified();
@@ -68,7 +65,7 @@ public class ImgWorkController {
                     }
                 });
 
-                File workFile = list[0];
+                File workFile = list[order];
                 mav.getModel().put("data", workFile.getAbsolutePath());
                 ips = new FileInputStream(workFile);
                 response.setContentType("multipart/form-data");
@@ -109,13 +106,14 @@ public class ImgWorkController {
 
     @RequestMapping(value = "/tempimg/name", method = RequestMethod.GET)
     @ResponseBody
-    public Response findFavList() {
+    public Response findFavList(Integer order) {
+        Response resp = new Response();
         try {
             File tempFile = new File(tempPath);
             File[] list = tempFile.listFiles();
 
 
-            if (list != null && list.length > 0) {
+            if (list != null && list.length > 0 && list.length >= (order + 1)) {
                 Arrays.sort(list, new Comparator<File>() {
                     public int compare(File f1, File f2) {
                         long diff = f1.lastModified() - f2.lastModified();
@@ -128,20 +126,44 @@ public class ImgWorkController {
                     }
                 });
 
-                File workFile = list[0];
+                File workFile = list[order];
 
-                Response resp = new Response();
 
                 resp.setStatus(Response.SUCCESS);
                 resp.setData(workFile.getAbsolutePath());
                 return resp;
             }
-            return null;
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg("处理完了");
+            return resp;
         } catch (Exception e) {
             e.printStackTrace();
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg(e.toString());
         }
-        return null;
+        return resp;
     }
 
+    @RequestMapping(value = "/taglist", method = RequestMethod.GET)
+    @ResponseBody
+    public Response getAllTag() {
+        Response resp = new Response();
+
+        List<String> list = null;
+        try {
+            list = FileUtils.readLines(new File(tagPath), "utf-8");
+            if (list != null) {
+
+                resp.setStatus(Response.SUCCESS);
+                resp.setData(list);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg(e.toString());
+        }
+
+        return resp;
+    }
 
 }

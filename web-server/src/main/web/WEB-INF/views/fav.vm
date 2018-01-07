@@ -5,17 +5,35 @@
         float: left;
         color: #000000;
         margin: 5px;
-        padding:2px;
+        padding: 2px;
+    }
+
+    .btn {
+        width: 120px;
+        height: 40px;
+        font-family: "黑体";
+        font-size: 18px;
+    }
+
+    ul li {
+        width: 100%;
+        float: left;
     }
 </style>
 
 <div style="padding: 10px;width: 98%">
     <div style="width: 69%;float: left">
-        <img src="/tempimg" id="npcImg" style="max-width: 99%"/>
+        <img src="" id="npcImg" style="max-width: 99%"/>
     </div>
-    <div style="width: 27%;float: left;border-left:1px solid #00F;padding: 10px;min-height: 800px">
+    <div style="width: 27%;float: left;border-left:1px solid #808080;padding: 10px;min-height: 800px">
 
         <ul>
+            <li>
+                <h3>选择</h3>
+                <input type="button" class="btn" value="上一个" id="preBtn" onclick="pre()">
+                <input type="button" class="btn" value="下一个" id="nextBtn" onclick="next()">
+                <input type="button" class="btn" value="保存" onclick="save()">
+            </li>
             <li>
                 <h3>路径</h3>
 
@@ -24,18 +42,28 @@
             <li>
                 <h3>标签</h3>
 
-                <div style="width: 100%;float: left">
+                <div style="width: 100%;float: left" id="tagList">
                     #if($!{tagList})
                         #foreach($entry in  $tagList)
                             <span>$!{entry}</span>
                         #end
                     #end
                 </div>
-                <h3 style="width: 100%;float: left">已选</h3>
+                <h3 style="width: 50%;float: left">已选</h3>
+                <input type="button" class="btn" value="清除已选" onclick="clearSel()">
 
-                <div style="width: 100%;float: left">
+                <div style="width: 100%;float: left" id="chooseTagList">
                     <span>abc</span>
                 </div>
+            </li>
+            <li>
+                <h3>套图</h3>
+
+                <input type="button" class="btn" value="设置连续" onclick="setchain()">
+                <input type="button" class="btn" value="清除连续" onclick="clearchain()">
+
+                <p id="chain"></p>
+
             </li>
         </ul>
     </div>
@@ -43,19 +71,34 @@
 </div>
 
 <script type="text/javascript">
-    var gridMon = null;
+    var order = 0;
+    var chain = '';
     $(document).ready(function () {
+        loadImg();
         getPath();
+        init();
+        getTag();
     })
+
+    function init() {
+        $("#tagList").delegate("span", "click", function () {
+            var tag = $(this).text();
+            $("#chooseTagList").append($(this));
+        });
+    }
+
+    function loadImg() {
+        $('#npcImg').attr('src', '/tempimg?order=' + order);
+    }
 
     function getPath() {
         var param = {};
+        param.order = order;
         var reqUrl = $("#contextPath").val() + "/tempimg/name";
         AjaxUtil.get(reqUrl, param, function (resp) {
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
             } else if (resp.status == 1) {
-
                 $('#path').text(resp.data);
             } else if (resp.status == 0) {
                 layer.msg(resp.msg);
@@ -66,5 +109,72 @@
         });
     }
 
+    function getTag() {
+        var param = {};
+        var reqUrl = $("#contextPath").val() + "/taglist";
+        AjaxUtil.get(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+
+                var spanStr = "";
+                var data = resp.data;
+                for(var i=0;i<data.length;i++){
+                    spanStr+="<span>" + data[i] +"</span>"
+                }
+                $('#tagList').empty();
+                $('#tagList').append(spanStr);
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
+    }
+
+
+    function next() {
+        order++;
+        $('#npcImg').attr('src', '/tempimg?order=' + order);
+        getPath();
+    }
+
+    function pre() {
+        if (order > 0) order--;
+        else order = 0;
+        $('#npcImg').attr('src', '/tempimg?order=' + order);
+        getPath();
+    }
+    function setchain() {
+        chain = uuid;
+        $('#chain').text(chain);
+    }
+
+    function clearchain() {
+        chain = '';
+        $('#chain').text('');
+    }
+    function clearSel() {
+        $("#chooseTagList").empty();
+        getTag();
+    }
+
+    function save() {
+
+    }
+    function uuid() {
+        var s = [];
+        var hexDigits = "0123456789abcdef";
+        for (var i = 0; i < 36; i++) {
+            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+        }
+        s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+        s[8] = s[13] = s[18] = s[23] = "-";
+
+        var uuid = s.join("");
+        return uuid;
+    }
 </script>
 
