@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.sera.dao.UserInfoMapper">
+
+	<resultMap id="userInfoMap" type="UserInfoEntity">
+		<id property="id" column="id" jdbcType="BIGINT"/>
+		<result property="userId" column="user_id" jdbcType="BIGINT"/>
+		<result property="userName" column="user_name" jdbcType="VARCHAR"/>
+		<result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
+		<result property="password" column="password" jdbcType="VARCHAR"/>
+		<result property="sex" column="sex" jdbcType="TINYINT"/>
+		<result property="birthday" column="birthday" jdbcType="DATE"/>
+		<result property="tinyurl" column="tinyurl" jdbcType="VARCHAR"/>
+		<result property="headurl" column="headurl" jdbcType="VARCHAR"/>
+		<result property="mainurl" column="mainurl" jdbcType="VARCHAR"/>
+		<result property="hometown" column="hometown" jdbcType="VARCHAR"/>
+		<result property="workHistory" column="work_history" jdbcType="VARCHAR"/>
+		<result property="universityHistory" column="university_history" jdbcType="VARCHAR"/>
+		<result property="hsHistory" column="hs_history" jdbcType="VARCHAR"/>
+		<result property="province" column="province" jdbcType="VARCHAR"/>
+		<result property="city" column="city" jdbcType="VARCHAR"/>
+		<result property="socialUid" column="social_uid" jdbcType="BIGINT"/>
+		<result property="mediaUid" column="media_uid" jdbcType="VARCHAR"/>
+		<result property="meidaType" column="meida_type" jdbcType="VARCHAR"/>
+		<result property="weibo" column="weibo" jdbcType="VARCHAR"/>
+		<result property="qq" column="qq" jdbcType="VARCHAR"/>
+		<result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+		<result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<!-- 所有字段  -->
+	<sql id="sqlColumns">
+		id, user_id, user_name, user_phone, sex, birthday, tinyurl, headurl, mainurl, hometown, work_history,
+		university_history, hs_history, province, city, social_uid, media_uid, meida_type, weibo, 
+		qq, create_time,update_time
+	</sql>
+
+	<!-- 单条新增数据  -->
+	<insert id="insert" parameterType="UserInfoEntity">
+		insert into user_info
+		(user_id, user_name, user_phone,password, sex, birthday, tinyurl, headurl, mainurl, hometown, work_history,
+		university_history, hs_history, province, city, social_uid, media_uid, meida_type, weibo,
+		qq, update_time)
+		values(
+		#{userId,jdbcType=BIGINT},
+		#{userName,jdbcType=VARCHAR},
+		#{userPhone,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{sex,jdbcType=TINYINT},
+		#{birthday,jdbcType=DATE},
+		#{tinyurl,jdbcType=VARCHAR},
+		#{headurl,jdbcType=VARCHAR},
+		#{mainurl,jdbcType=VARCHAR},
+		#{hometown,jdbcType=VARCHAR},
+		#{workHistory,jdbcType=VARCHAR},
+		#{universityHistory,jdbcType=VARCHAR},
+		#{hsHistory,jdbcType=VARCHAR},
+		#{province,jdbcType=VARCHAR},
+		#{city,jdbcType=VARCHAR},
+		#{socialUid,jdbcType=BIGINT},
+		#{mediaUid,jdbcType=VARCHAR},
+		#{meidaType,jdbcType=VARCHAR},
+		#{weibo,jdbcType=VARCHAR},
+		#{qq,jdbcType=VARCHAR},
+		#{updateTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+	<!-- 根据传入的字段值查询  -->
+	<select id="getByPassword"  resultMap="userInfoMap">
+		select
+		<include refid="sqlColumns"/>
+		from user_info
+		where user_name = #{userName,jdbcType=VARCHAR} and password = #{password,jdbcType=VARCHAR}
+	</select>
+
+
+	<select id="getByUserID"  resultMap="userInfoMap">
+		select
+		<include refid="sqlColumns"/>
+		from user_info
+		where user_id = #{userId,jdbcType=BIGINT}
+	</select>
+
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-lazy-init="false">
+
+    <bean id="config" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath*:config.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="properties" ref="config"/>
+    </bean>
+
+    <context:component-scan base-package="com.sera.dao"/>
+    <context:component-scan base-package="com.sera.service"/>
+    <context:component-scan base-package="com.sera.helper"/>
+    <context:component-scan base-package="com.sera.task"/>
+    <import resource="spring-dao.xml"/>
+    <!--<import resource="spring-cache.xml"/>-->
+
+    <!--<bean class="com.sera.task.CheckUrlTaskTimer" init-method="start" destroy-method="stop">-->
+        <!--&lt;!&ndash;配置定时器是否启用，1：启动，0：不启用&ndash;&gt;-->
+        <!--<property name="valid" value="1"/>-->
+        <!--&lt;!&ndash;首次执行的延迟时间 默认1最小值为1（单位秒）&ndash;&gt;-->
+        <!--<property name="initialDelay" value="10"/>-->
+        <!--&lt;!&ndash;一次执行终止和下一次执行开始之间的延迟 默认5分钟最小值1秒（单位秒）&ndash;&gt;-->
+        <!--<property name="delay" value="10"/>-->
+        <!--&lt;!&ndash; 数据抓取条件 &ndash;&gt;-->
+        <!--<property name="sqlCondition" value="task_type=100 and status=1 and task_exe_count &lt; 2 limit 1"/>-->
+    <!--</bean>-->
+
+</beans>

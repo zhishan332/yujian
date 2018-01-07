@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.sera.dao.FavGroupMapper">
+
+	<resultMap id="favGroupMap" type="FavGroupEntity">
+		<id property="id" column="id" jdbcType="BIGINT"/>
+		<result property="groupId" column="group_id" jdbcType="BIGINT"/>
+		<result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+		<result property="covert" column="covert" jdbcType="TINYINT"/>
+		<result property="userId" column="user_id" jdbcType="BIGINT"/>
+		<result property="userName" column="user_name" jdbcType="VARCHAR"/>
+		<result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<!-- 所有字段  -->
+	<sql id="sqlColumns">
+		id, group_id, group_name,covert, user_id, user_name, create_time
+	</sql>
+
+	<!-- 单条新增数据  -->
+	<insert id="insert" parameterType="FavGroupEntity">
+		insert into fav_group
+		(group_id, group_name,covert, user_id, user_name)
+		values(
+		#{groupId,jdbcType=BIGINT},
+		#{groupName,jdbcType=VARCHAR},
+		#{covert,jdbcType=TINYINT},
+		#{userId,jdbcType=BIGINT},
+		#{userName,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<!-- 根据主键删除数据  -->
+	<delete id="delByUserIdAndId" parameterType="FavGroupEntity">
+		delete from fav_group
+		where group_id = #{groupId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 根据主键全量更新  -->
+	<update id="updateForProtect" parameterType="FavGroupEntity">
+		update fav_group
+		set covert=#{covert,jdbcType=TINYINT}
+		where group_id = #{groupId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+	</update>
+
+	<select id="getByGroupId"  resultMap="favGroupMap">
+		select
+		<include refid="sqlColumns"/>
+		from fav_group
+		<where>
+			group_id = #{groupId,jdbcType=BIGINT}
+		</where>
+	</select>
+
+	<!-- 根据传入的字段值查询  -->
+	<select id="find"  resultMap="favGroupMap">
+		select
+		<include refid="sqlColumns"/>
+		from fav_group
+		<where>
+			user_id = #{userId,jdbcType=BIGINT}
+		</where>
+		order by create_time desc
+	</select>
+
+	<select id="findForDiscovery"  resultMap="favGroupMap">
+		select
+		<include refid="sqlColumns"/>
+		from fav_group
+		<where>
+			covert = #{covert,jdbcType=TINYINT}
+		</where>
+		order by create_time desc
+		limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+	</select>
+</mapper>

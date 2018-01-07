@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.sera.dao.FavListMapper">
+
+    <resultMap id="favListMap" type="FavListEntity">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="favId" column="fav_id" jdbcType="BIGINT"/>
+        <result property="groupId" column="group_id" jdbcType="BIGINT"/>
+        <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+        <result property="favTitle" column="fav_title" jdbcType="VARCHAR"/>
+        <result property="favUrl" column="fav_url" jdbcType="VARCHAR"/>
+        <result property="favIco" column="fav_ico" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="favStatus" column="fav_status" jdbcType="INTEGER"/>
+        <result property="favFocus" column="fav_focus" jdbcType="TINYINT"/>
+        <result property="favSort" column="fav_sort" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="checkTime" column="check_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 所有字段  -->
+    <sql id="sqlColumns">
+		id, fav_id, group_id, group_name, fav_title, fav_url,fav_ico, user_id, user_name, fav_status, fav_focus,
+		fav_sort, create_time, check_time, update_time
+	</sql>
+
+    <!-- 单条新增数据  -->
+    <insert id="insert" parameterType="FavListEntity">
+		insert into fav_list
+		(fav_id, group_id, group_name, fav_title, fav_url,fav_ico, user_id, user_name, fav_status, fav_focus,
+		fav_sort, update_time)
+		values(
+		#{favId,jdbcType=BIGINT},
+		#{groupId,jdbcType=BIGINT},
+		#{groupName,jdbcType=VARCHAR},
+		#{favTitle,jdbcType=VARCHAR},
+		#{favUrl,jdbcType=VARCHAR},
+		#{favIco,jdbcType=VARCHAR},
+		#{userId,jdbcType=BIGINT},
+		#{userName,jdbcType=VARCHAR},
+		#{favStatus,jdbcType=INTEGER},
+		#{favFocus,jdbcType=TINYINT},
+		#{favSort,jdbcType=INTEGER},
+		#{updateTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+    <!-- 根据主键删除数据  -->
+    <delete id="delByUserIdAndId" parameterType="FavListEntity">
+		delete from fav_list
+		where fav_id = #{favId,jdbcType=BIGINT}  and user_id=#{userId,jdbcType=BIGINT}
+	</delete>
+
+    <!-- 根据组批量删除数据  -->
+    <delete id="deleteByGroup" parameterType="FavListEntity">
+		delete from fav_list
+		where group_id = #{groupId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+	</delete>
+
+    <!-- 根据状态批量删除数据  -->
+    <delete id="deleteByStatus" parameterType="FavListEntity">
+		delete from fav_list
+		where fav_status = #{favStatus,jdbcType=TINYINT} and user_id=#{userId,jdbcType=BIGINT}
+	</delete>
+
+    <update id="updateStatus" parameterType="FavListEntity">
+        update fav_list
+        set fav_status=#{favStatus,jdbcType=INTEGER} ,update_time=#{updateTime,jdbcType=TIMESTAMP}
+        where fav_id = #{favId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateFocus" parameterType="FavListEntity">
+		update fav_list
+		set fav_focus=#{favFocus,jdbcType=TINYINT} ,update_time=#{updateTime,jdbcType=TIMESTAMP}
+		where fav_id = #{favId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+	</update>
+
+    <update id="updateHighSort" parameterType="FavListEntity">
+		update fav_list
+		set fav_sort=fav_sort+1
+		where fav_id = #{favId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+	</update>
+
+    <update id="updateLowSort" parameterType="FavListEntity">
+		update fav_list
+		set fav_sort=fav_sort-1
+		where fav_id = #{favId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+	</update>
+
+    <update id="updateFavGroup" parameterType="FavListEntity">
+        update fav_list
+        set group_id=#{groupId,jdbcType=BIGINT} ,update_time=#{updateTime,jdbcType=TIMESTAMP}
+        where fav_id = #{favId,jdbcType=BIGINT} and user_id=#{userId,jdbcType=BIGINT}
+    </update>
+
+    <!-- 根据传入的字段值查询  -->
+    <select id="find" resultMap="favListMap">
+        select
+        <include refid="sqlColumns"/>
+        from fav_list
+        <where>
+            user_id = #{userId,jdbcType=BIGINT}
+
+            <if test="groupId > 0">
+                and group_id = #{groupId,jdbcType=BIGINT}
+            </if>
+
+            <if test="searchKey != null">
+                and (fav_title like CONCAT('%','${searchKey}','%' ) or fav_url like CONCAT('%','${searchKey}','%' ))
+            </if>
+        </where>
+        order by fav_sort desc , update_time desc
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
+
+    <select id="findSimple" resultMap="favListMap">
+        select
+        fav_id,fav_url
+        from fav_list
+        <where>
+            user_id = #{userId,jdbcType=BIGINT}
+        </where>
+        order by  update_time desc
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
+
+    <select id="findTotal" resultType="long">
+        select
+        count(*)
+        from fav_list
+        <where>
+            user_id = #{userId,jdbcType=BIGINT}
+        </where>
+    </select>
+
+    <!-- 根据传入的字段值查询  -->
+    <select id="get" resultMap="favListMap">
+        select
+        <include refid="sqlColumns"/>
+        from fav_list
+        <where>
+            user_id = #{userId,jdbcType=BIGINT}
+
+            and fav_id = #{favId,jdbcType=BIGINT}
+        </where>
+    </select>
+
+
+    <!-- 根据传入的字段值查询  -->
+    <select id="getByUrl" resultMap="favListMap">
+        select
+        <include refid="sqlColumns"/>
+        from fav_list
+        <where>
+            user_id = #{userId,jdbcType=BIGINT}
+            and fav_url = #{favUrl,jdbcType=VARCHAR}
+        </where>
+        limit 1
+    </select>
+</mapper>

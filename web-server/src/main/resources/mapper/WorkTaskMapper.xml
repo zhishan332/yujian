@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.sera.dao.WorkTaskMapper">
+
+    <resultMap id="workTaskMap" type="WorkTaskEntity">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="refId" column="ref_id" jdbcType="VARCHAR"/>
+        <result property="taskType" column="task_type" jdbcType="INTEGER"/>
+        <result property="keyA" column="key_a" jdbcType="VARCHAR"/>
+        <result property="keyB" column="key_b" jdbcType="VARCHAR"/>
+        <result property="keyC" column="key_c" jdbcType="VARCHAR"/>
+        <result property="taskData" column="task_data" jdbcType="VARCHAR"/>
+        <result property="taskExeCount" column="task_exe_count" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="BIGINT"/>
+        <result property="updateTime" column="update_time" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!-- 所有字段  -->
+    <sql id="sqlColumns">
+		id, ref_id, task_type, key_a, key_b, key_c, task_data, task_exe_count, status, create_time, 
+		update_time
+	</sql>
+
+    <!-- 所有字段  -->
+    <sql id="addColumns">
+	    ref_id, task_type, key_a, key_b, key_c, task_data, task_exe_count, status, create_time,
+		update_time
+	</sql>
+
+    <!-- 单条新增数据  -->
+    <insert id="insertTask" parameterType="WorkTaskEntity">
+        insert into work_task
+        (<include refid="addColumns"/>)
+        values(
+        #{refId,jdbcType=VARCHAR},
+        #{taskType,jdbcType=INTEGER},
+        #{keyA,jdbcType=VARCHAR},
+        #{keyB,jdbcType=VARCHAR},
+        #{keyC,jdbcType=VARCHAR},
+        #{taskData,jdbcType=VARCHAR},
+        #{taskExeCount,jdbcType=INTEGER},
+        #{status,jdbcType=INTEGER},
+        #{createTime,jdbcType=BIGINT},
+        #{updateTime,jdbcType=BIGINT}
+        )
+    </insert>
+    <!-- 根据传入的字段值查询  -->
+    <select id="findTask" resultMap="workTaskMap" statementType="STATEMENT">
+        select
+        <include refid="sqlColumns"/>
+        from work_task
+        where  ${sqlCon}
+    </select>
+
+    <!-- 根据传入的字段值查询  -->
+    <select id="getTaskByKeyA" resultMap="workTaskMap" parameterType="string">
+        select
+        <include refid="sqlColumns"/>
+        from work_task
+        where  key_a= #{keyA,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="getTaskByRefId" resultMap="workTaskMap" parameterType="string">
+        select
+        <include refid="sqlColumns"/>
+        from work_task
+        where  ref_id= #{refId,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <!-- 根据主键删除数据  -->
+    <delete id="deleteById" parameterType="long">
+		delete from work_task
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+    <update id="updateTask" parameterType="WorkTaskEntity">
+		update work_task
+		set
+		status = #{status,jdbcType=INTEGER},
+		update_time=(select unix_timestamp(now()))
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+    <update id="updateAddExeNum" parameterType="long">
+		update work_task
+		set
+		status = 1,
+		task_exe_count =task_exe_count+1,
+        update_time=(select unix_timestamp(now()))
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+
+    <update id="updateToRun" parameterType="long">
+        update work_task
+        set
+        status = 2,
+        update_time=(select unix_timestamp(now()))
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+       default-lazy-init="false" default-autowire="byName">
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <property name="dateFormat">
+                            <bean class="java.text.SimpleDateFormat">
+                                <constructor-arg value="yyyy-MM-dd HH:mm:ss"/>
+                            </bean>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>text/plain;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!-- 开启mvc 注释驱动 扫描Controller中的注释-->
+    <context:component-scan base-package="com.sera.controller"/>
+    <!--spring mvc注解驱动，必须要加-->
+    <mvc:annotation-driven/>
+    <!-- 对静态资源文件的访问   -->
+    <mvc:default-servlet-handler/>
+    <!-- 开启spring aop 实现方式cglib-->
+    <aop:aspectj-autoproxy expose-proxy="true"/>
+    <!-- 开启spring3的注释 如果配置 component-scan 理论可以去掉-->
+    <context:annotation-config/>
+    <mvc:resources location="/statics/" mapping="/statics/**"
+                   cache-period="864000" /><!-- 24 * 3600 * 10 -->
+    <!--启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+    <!--<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">-->
+    <!--<property name="messageConverters">-->
+    <!--<list>-->
+
+    <!--</list>-->
+    <!--</property>-->
+    <!--</bean>-->
+    <!-- locale related -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="cookieName" value="_clientlocale"/>
+        <property name="defaultLocale" value="zh_CN"/>
+        <property name="cookieMaxAge" value="2147483647"/>
+    </bean>
+    <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+    <!--<property name="prefix" value="/WEB-INF/views/"/>-->
+    <!--<property name="suffix" value=".jsp"/>-->
+    <!--</bean>-->
+    <!-- template view-->
+    <bean id="velocityConfig"
+          class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="resourceLoaderPath" value="/WEB-INF/views/" />
+        <property name="velocityProperties">
+            <props>
+                <prop key="input.encoding">UTF-8</prop>
+                <prop key="output.encoding">UTF-8</prop>
+                <prop key="contentType">text/html;charset=UTF-8</prop>
+                <prop key="velocimacro.library">macro.vm</prop>
+                <!--<prop key="file.resource.loader.class">org.apache.velocity.tools.view.WebappResourceLoader</prop>-->
+            </props>
+        </property>
+    </bean>
+    <bean id="velocityViewResolver"
+          class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+        <property name="layoutUrl" value="layout/default.vm" />
+        <property name="cache" value="false" />
+        <property name="suffix" value=".vm" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="dateToolAttribute" value="dateTool" />
+        <property name="numberToolAttribute" value="numberTool" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+        <property name="toolboxConfigLocation" value="WEB-INF/velocity/toolsbox.xml" />
+
+    </bean>
+
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    </bean>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 对所有的请求拦截使用/** ,对某个模块下的请求拦截使用：/api/* -->
+            <mvc:mapping path="/**" />
+            <ref bean="cookieInterceptor" />
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!-- 对所有的请求拦截使用/** ,对某个模块下的请求拦截使用：/api/* -->
+            <mvc:mapping path="/fav/**" />
+            <ref bean="userInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <bean id="userInterceptor"
+          class="com.sera.inteceptor.UserInterceptor">
+    </bean>
+
+    <bean id="cookieInterceptor"
+          class="com.sera.inteceptor.CookieInterceptor">
+    </bean>
+</beans>
