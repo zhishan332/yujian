@@ -15,6 +15,13 @@
         font-size: 18px;
     }
 
+    .btn_sm {
+        width: 80px;
+        height: 30px;
+        font-family: "黑体";
+        font-size: 16px;
+    }
+
     ul li {
         width: 100%;
         float: left;
@@ -53,7 +60,6 @@
                 <input type="button" class="btn" value="清除已选" onclick="clearSel()">
 
                 <div style="width: 100%;float: left" id="chooseTagList">
-                    <span>abc</span>
                 </div>
             </li>
             <li>
@@ -64,6 +70,12 @@
 
                 <p id="chain"></p>
 
+            </li>
+            <li>
+                <h3>保存结果</h3>
+
+                <p id="saveInfo"></p>
+                <input type="button" class="btn_sm" value="查看" onclick="viewSave()">
             </li>
         </ul>
     </div>
@@ -88,13 +100,13 @@
     }
 
     function loadImg() {
-        $('#npcImg').attr('src', '/tempimg?order=' + order);
+        $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
     }
 
     function getPath() {
         var param = {};
         param.order = order;
-        var reqUrl = $("#contextPath").val() + "/tempimg/name";
+        var reqUrl = $("#contextPath").val() + "/tempimg/name?" + '_time' + uuid();
         AjaxUtil.get(reqUrl, param, function (resp) {
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
@@ -119,8 +131,8 @@
 
                 var spanStr = "";
                 var data = resp.data;
-                for(var i=0;i<data.length;i++){
-                    spanStr+="<span>" + data[i] +"</span>"
+                for (var i = 0; i < data.length; i++) {
+                    spanStr += "<span>" + data[i] + "</span>"
                 }
                 $('#tagList').empty();
                 $('#tagList').append(spanStr);
@@ -136,15 +148,27 @@
 
     function next() {
         order++;
-        $('#npcImg').attr('src', '/tempimg?order=' + order);
+        $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
         getPath();
     }
 
     function pre() {
         if (order > 0) order--;
         else order = 0;
-        $('#npcImg').attr('src', '/tempimg?order=' + order);
+        $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
         getPath();
+    }
+
+    function viewSave() {
+        var path = '/viewimg?deployFile=' + $('#saveInfo').text();
+        var html = "<img src='" + path + "'/>"
+        layer.open({
+            title: $('#saveInfo').text(),
+            type: 1,
+            area: ['1024px', '768px'],
+            shadeClose: true, //点击遮罩关闭
+            content: "<div>" + html + "</div>"
+        });
     }
     function setchain() {
         chain = uuid;
@@ -161,7 +185,34 @@
     }
 
     function save() {
-
+        var param = {};
+        param.img = $('#path').text();
+        param.chain = $('#chain').text();
+        var taglist = '';
+        $('#chooseTagList span').each(function (i) {
+            var tag = $(this).text();
+            taglist += tag;
+            taglist += ';';
+        });
+        param.tag = taglist;
+        $('#saveInfo').empty();
+        var reqUrl = $("#contextPath").val() + "/save";
+        AjaxUtil.post(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+                layer.msg('保存成功');
+                $('#saveInfo').text(resp.data);
+                if (chain == '') clearSel();
+                $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
+                getPath();
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
     }
     function uuid() {
         var s = [];

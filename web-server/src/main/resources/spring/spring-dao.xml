@@ -44,7 +44,7 @@
     <!--</bean>-->
 
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.sera.dao"/>
+        <property name="basePackage" value="com.yujian.wq.mapper"/>
         <!--如果你使用了一个以上的DataSource,这里可以配置，否则没有表要配置-->
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>

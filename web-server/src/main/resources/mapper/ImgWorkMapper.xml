@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.yujian.wq.mapper.ImgWorkMapper">
+
+    <resultMap id="imgMap" type="ImgEntity">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="img" column="img" jdbcType="VARCHAR"/>
+        <result property="folder" column="folder" jdbcType="INTEGER"/>
+        <result property="chain" column="chain" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <insert id="insertImgAndGetId" useGeneratedKeys="true" keyProperty="id" parameterType="ImgEntity">
+        insert into img
+        (img,folder,chain)
+        values(
+        #{img,jdbcType=VARCHAR},
+        #{folder,jdbcType=VARCHAR},
+        #{chain,jdbcType=VARCHAR}
+        )
+    </insert>
+
+
+    <insert id="insertTag" useGeneratedKeys="true" keyProperty="id" parameterType="TagEntity">
+        insert into tag
+        (img_id,tag)
+        values(
+        #{imgId,jdbcType=INTEGER},
+        #{tag,jdbcType=VARCHAR}
+        )
+    </insert>
+
+
+</mapper>

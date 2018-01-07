@@ -24,9 +24,10 @@
         <!-- 全局别名设置，在映射文件中只需写别名，而不必写出整个类路径  -->
     </settings>
     <typeAliases>
-        <!--<typeAlias alias="FavGroupEntity" type="com.sera.entity.FavGroupEntity"/>-->
+        <typeAlias alias="ImgEntity" type="com.yujian.wq.mapper.ImgEntity"/>
+        <typeAlias alias="TagEntity" type="com.yujian.wq.mapper.TagEntity"/>
     </typeAliases>
     <mappers>
-        <!--<mapper resource="mapper/FavGroupMapper.xml"/>-->
+        <mapper resource="mapper/ImgWorkMapper.xml"/>
     </mappers>
 </configuration>
