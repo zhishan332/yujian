@@ -119,6 +119,7 @@ public class ImgWorkController {
         FileInputStream ips = null;
         try {
             File viewFile = new File(deployFile);
+            if (!viewFile.exists()) return null;
             ips = new FileInputStream(viewFile);
             response.setContentType("multipart/form-data");
             out = response.getOutputStream();
