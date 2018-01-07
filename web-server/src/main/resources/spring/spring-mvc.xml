@@ -34,7 +34,7 @@
         </mvc:message-converters>
     </mvc:annotation-driven>
     <!-- 开启mvc 注释驱动 扫描Controller中的注释-->
-    <context:component-scan base-package="com.sera.controller"/>
+    <context:component-scan base-package="com.yujian.wq.controller"/>
     <!--spring mvc注解驱动，必须要加-->
     <mvc:annotation-driven/>
     <!-- 对静态资源文件的访问   -->
@@ -94,24 +94,24 @@
           class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
     </bean>
 
-    <mvc:interceptors>
-        <mvc:interceptor>
-            <!-- 对所有的请求拦截使用/** ,对某个模块下的请求拦截使用：/api/* -->
-            <mvc:mapping path="/**" />
-            <ref bean="cookieInterceptor" />
-        </mvc:interceptor>
-        <mvc:interceptor>
-            <!-- 对所有的请求拦截使用/** ,对某个模块下的请求拦截使用：/api/* -->
-            <mvc:mapping path="/fav/**" />
-            <ref bean="userInterceptor" />
-        </mvc:interceptor>
-    </mvc:interceptors>
+    <!--<mvc:interceptors>-->
+        <!--<mvc:interceptor>-->
+            <!--&lt;!&ndash; 对所有的请求拦截使用/** ,对某个模块下的请求拦截使用：/api/* &ndash;&gt;-->
+            <!--<mvc:mapping path="/**" />-->
+            <!--<ref bean="cookieInterceptor" />-->
+        <!--</mvc:interceptor>-->
+        <!--<mvc:interceptor>-->
+            <!--&lt;!&ndash; 对所有的请求拦截使用/** ,对某个模块下的请求拦截使用：/api/* &ndash;&gt;-->
+            <!--<mvc:mapping path="/fav/**" />-->
+            <!--<ref bean="userInterceptor" />-->
+        <!--</mvc:interceptor>-->
+    <!--</mvc:interceptors>-->
 
-    <bean id="userInterceptor"
-          class="com.sera.inteceptor.UserInterceptor">
-    </bean>
+    <!--<bean id="userInterceptor"-->
+          <!--class="com.sera.inteceptor.UserInterceptor">-->
+    <!--</bean>-->
 
-    <bean id="cookieInterceptor"
-          class="com.sera.inteceptor.CookieInterceptor">
-    </bean>
+    <!--<bean id="cookieInterceptor"-->
+          <!--class="com.sera.inteceptor.CookieInterceptor">-->
+    <!--</bean>-->
 </beans>

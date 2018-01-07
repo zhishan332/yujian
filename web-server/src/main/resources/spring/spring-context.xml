@@ -17,10 +17,10 @@
         <property name="properties" ref="config"/>
     </bean>
 
-    <context:component-scan base-package="com.sera.dao"/>
-    <context:component-scan base-package="com.sera.service"/>
-    <context:component-scan base-package="com.sera.helper"/>
-    <context:component-scan base-package="com.sera.task"/>
+    <!--<context:component-scan base-package="com.sera.dao"/>-->
+    <!--<context:component-scan base-package="com.sera.service"/>-->
+    <!--<context:component-scan base-package="com.sera.helper"/>-->
+    <!--<context:component-scan base-package="com.sera.task"/>-->
     <import resource="spring-dao.xml"/>
     <!--<import resource="spring-cache.xml"/>-->
 

@@ -1,0 +1,14 @@
+<div class="ui ignored ignored icon buttons">
+    <div class="ui show button"><i class="plus icon"></i></div>
+    <div class="ui hide button"><i class="minus icon"></i></div>
+</div>
+
+<div class="ui buttons">
+    <div class="ui button">取消</div>
+    <div class="or"></div>
+    <div class="ui positive button">保存</div>
+</div>
+
+<div class="ui icon button">
+    <i class="setting icon"></i>
+</div>

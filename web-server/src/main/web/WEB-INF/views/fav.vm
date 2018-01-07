@@ -1,0 +1,70 @@
+<style type="text/css">
+    span {
+        background: #fff;
+        border: 1px solid green;
+        float: left;
+        color: #000000;
+        margin: 5px;
+        padding:2px;
+    }
+</style>
+
+<div style="padding: 10px;width: 98%">
+    <div style="width: 69%;float: left">
+        <img src="/tempimg" id="npcImg" style="max-width: 99%"/>
+    </div>
+    <div style="width: 27%;float: left;border-left:1px solid #00F;padding: 10px;min-height: 800px">
+
+        <ul>
+            <li>
+                <h3>路径</h3>
+
+                <p id="path"></p>
+            </li>
+            <li>
+                <h3>标签</h3>
+
+                <div style="width: 100%;float: left">
+                    #if($!{tagList})
+                        #foreach($entry in  $tagList)
+                            <span>$!{entry}</span>
+                        #end
+                    #end
+                </div>
+                <h3 style="width: 100%;float: left">已选</h3>
+
+                <div style="width: 100%;float: left">
+                    <span>abc</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    var gridMon = null;
+    $(document).ready(function () {
+        getPath();
+    })
+
+    function getPath() {
+        var param = {};
+        var reqUrl = $("#contextPath").val() + "/tempimg/name";
+        AjaxUtil.get(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+
+                $('#path').text(resp.data);
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
+    }
+
+</script>
+

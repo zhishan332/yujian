@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>预见</title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.js" type="text/javascript"></script>
+    <script src="#springUrl('statics/js/ajax-utils.js')" type="text/javascript"></script>
+    <script src="#springUrl('statics/plugin/layer/layer.js')" type="text/javascript"></script>
+    <style type="text/css">
+        body{
+            font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif !important;
+            font-size: 14px !important;
+            line-height: 1.7 !important;
+        }
+    </style>
+</head>
+<body>
+    <input type="hidden" id="contextPath" value="#springUrl('')"/>
+    #parse("layout/header.vm")
+        $screen_content
+    #parse("layout/footer.vm")
+</body>
+</html>
