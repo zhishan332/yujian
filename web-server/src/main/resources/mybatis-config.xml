@@ -25,14 +25,8 @@
     </settings>
     <typeAliases>
         <typeAlias alias="FavGroupEntity" type="com.sera.entity.FavGroupEntity"/>
-        <typeAlias alias="FavListEntity" type="com.sera.entity.FavListEntity"/>
-        <typeAlias alias="UserInfoEntity" type="com.sera.entity.UserInfoEntity"/>
-        <typeAlias alias="WorkTaskEntity" type="com.sera.entity.WorkTaskEntity"/>
     </typeAliases>
     <mappers>
         <mapper resource="mapper/FavGroupMapper.xml"/>
-        <mapper resource="mapper/FavListMapper.xml"/>
-        <mapper resource="mapper/UserInfoMapper.xml"/>
-        <mapper resource="mapper/WorkTaskMapper.xml"/>
     </mappers>
 </configuration>
