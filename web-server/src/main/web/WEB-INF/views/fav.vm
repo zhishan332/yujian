@@ -10,7 +10,7 @@
         width: 50px;
         text-align: center;
         overflow: hidden;
-        padding: 2px,5px,2px,5px;
+        padding: 2px, 5px, 2px, 5px;
     }
 
     .btn {
@@ -39,7 +39,7 @@
     </div>
     <div style="width: 27%;float: left;border-left:1px solid #808080;padding: 10px;min-height: 800px">
 
-        <ul style="margin-top: 0">
+        <ul style="margin-top: 0;padding-left: 10px">
             <li>
                 <h3>选择</h3>
                 <input type="button" class="btn" value="上一个" id="preBtn" onclick="pre()">
@@ -92,7 +92,7 @@
 
 <script type="text/javascript">
     var order = 0;
-    var chain = '';
+    var myStorage = localStorage;
     $(document).ready(function () {
         loadImg();
         getPath();
@@ -107,9 +107,21 @@
         });
 
         $("#chooseTagList").delegate("span", "click", function () {
-            var tag = $(this).text();
-            $("#tagList").append($(this));
+//            var tag = $(this).text();
+            $(this).remove();
+            var taglist = '';
+            $('#chooseTagList span').each(function (i) {
+                var tag = $(this).text();
+                taglist += tag;
+                taglist += ';';
+            });
+            getTag(taglist);
         });
+
+        var storeChain = myStorage['chain'];
+        if(storeChain!=null){
+            $('#chain').val(storeChain);
+        }
     }
 
     function loadImg() {
@@ -134,7 +146,7 @@
         });
     }
 
-    function getTag() {
+    function getTag(chooseList) {
         var param = {};
         var reqUrl = $("#contextPath").val() + "/taglist";
         AjaxUtil.get(reqUrl, param, function (resp) {
@@ -144,9 +156,32 @@
 
                 var spanStr = "";
                 var data = resp.data;
-                for (var i = 0; i < data.length; i++) {
-                    spanStr += "<span>" + data[i] + "</span>"
+
+                var aary = null;
+                if (chooseList != null) {
+                    aary = chooseList.split(';');
                 }
+                for (var key in data) {
+                    for (var i = 0; i < data[key].length; i++) {
+                        if(aary !=null){
+                            var isAdd = true;
+                            for(var n  =0 ;n < aary.length;n++){
+                                if( data[key][i] == aary[n]){
+                                    isAdd = false;
+                                    break;
+                                }
+                            }
+                            if(isAdd){
+                                spanStr += "<span>" + data[key][i] + "</span>"
+                            }
+                        }else{
+                            spanStr += "<span>" + data[key][i] + "</span>"
+                        }
+
+                    }
+                    spanStr += '<hr style="margin-top: 2px;width: 100%">';
+                }
+
                 $('#tagList').empty();
                 $('#tagList').append(spanStr);
             } else if (resp.status == 0) {
@@ -181,7 +216,7 @@
                 layer.alert("系统异常", {icon: 5});
             } else if (resp.status == 1) {
                 layer.msg('已删除');
-                if (chain == '') clearSel();
+                if (myStorage.getItem("chain") == '') clearSel();
                 $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
                 getPath();
             } else if (resp.status == 0) {
@@ -205,12 +240,13 @@
         });
     }
     function setchain() {
-        chain = uuid;
-        $('#chain').val(chain);
+        var chain = uuid();
+        myStorage.setItem("chain", chain);
+        $('#chain').val(myStorage.getItem("chain"));
     }
 
     function clearchain() {
-        chain = '';
+        myStorage.setItem("chain", '');
         $('#chain').val('');
     }
     function clearSel() {
@@ -237,7 +273,7 @@
             } else if (resp.status == 1) {
                 layer.msg('保存成功');
                 $('#saveInfo').text(resp.data);
-                if (chain == '') clearSel();
+                if (myStorage.getItem("chain") == '') clearSel();
                 $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
                 getPath();
             } else if (resp.status == 0) {

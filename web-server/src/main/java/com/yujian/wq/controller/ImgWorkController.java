@@ -259,7 +259,7 @@ public class ImgWorkController {
             }
 
             String fileName = UUID.randomUUID().toString();
-            int folder = getTimesmorning() % DeployFolderNum;
+            int folder = getCurrentMonthLastDay() % DeployFolderNum;
 
             ImgEntity imgEntity = new ImgEntity();
             imgEntity.setImg(fileName);
@@ -319,17 +319,14 @@ public class ImgWorkController {
     }
 
     //获得当天0点时间
-    public static int getTimesmorning() {
+    public static int getCurrentMonthLastDay()
+    {
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return (int) (cal.getTimeInMillis() / 1000);
+        return cal.get(Calendar.DATE);
     }
 
     public static void main(String[] args) {
-        int folder = getTimesmorning() % DeployFolderNum;
+        int folder = getCurrentMonthLastDay() % DeployFolderNum;
         System.out.println(folder);
         System.out.println(folder);
     }
