@@ -12,7 +12,7 @@ public class Response implements Serializable {
     public static final int SUCCESS = 1;
     public static final int FAILURE = 0;
     public static final int NOLOGIN = 2;
-    private int status; //见上述状态码
+    private int status = SUCCESS; //见上述状态码
     private String msg;
     private Object data;
 

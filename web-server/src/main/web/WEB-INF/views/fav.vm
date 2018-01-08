@@ -4,12 +4,17 @@
         border: 1px solid green;
         float: left;
         color: #000000;
-        margin: 5px;
-        padding: 2px;
+        font-family: "黑体";
+        font-size: 16px;
+        margin: 3px;
+        width: 50px;
+        text-align: center;
+        overflow: hidden;
+        padding: 2px,5px,2px,5px;
     }
 
     .btn {
-        width: 120px;
+        width: 100px;
         height: 40px;
         font-family: "黑体";
         font-size: 18px;
@@ -34,17 +39,13 @@
     </div>
     <div style="width: 27%;float: left;border-left:1px solid #808080;padding: 10px;min-height: 800px">
 
-        <ul>
+        <ul style="margin-top: 0">
             <li>
                 <h3>选择</h3>
                 <input type="button" class="btn" value="上一个" id="preBtn" onclick="pre()">
                 <input type="button" class="btn" value="下一个" id="nextBtn" onclick="next()">
+                <input type="button" class="btn" value="删除" onclick="del()">
                 <input type="button" class="btn" value="保存" onclick="save()">
-            </li>
-            <li>
-                <h3>路径</h3>
-
-                <p id="path"></p>
             </li>
             <li>
                 <h3>标签</h3>
@@ -56,8 +57,9 @@
                         #end
                     #end
                 </div>
-                <h3 style="width: 50%;float: left">已选</h3>
-                <input type="button" class="btn" value="清除已选" onclick="clearSel()">
+                <h3 style="width: 50%;float: left">已选 <input type="button" class="btn" value="清除已选"
+                                                             onclick="clearSel()"></h3>
+
 
                 <div style="width: 100%;float: left" id="chooseTagList">
                 </div>
@@ -68,7 +70,7 @@
                 <input type="button" class="btn" value="设置连续" onclick="setchain()">
                 <input type="button" class="btn" value="清除连续" onclick="clearchain()">
 
-                <p id="chain"></p>
+                <input type="text" id="chain" style="width: 100%">
 
             </li>
             <li>
@@ -77,6 +79,12 @@
                 <p id="saveInfo"></p>
                 <input type="button" class="btn_sm" value="查看" onclick="viewSave()">
             </li>
+            <li>
+                <h3>路径</h3>
+
+                <p id="path"></p>
+            </li>
+
         </ul>
     </div>
 
@@ -96,6 +104,11 @@
         $("#tagList").delegate("span", "click", function () {
             var tag = $(this).text();
             $("#chooseTagList").append($(this));
+        });
+
+        $("#chooseTagList").delegate("span", "click", function () {
+            var tag = $(this).text();
+            $("#tagList").append($(this));
         });
     }
 
@@ -159,6 +172,27 @@
         getPath();
     }
 
+    function del() {
+        var param = {};
+        param.path = $('#path').text();
+        var reqUrl = $("#contextPath").val() + "/del";
+        AjaxUtil.post(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+                layer.msg('已删除');
+                if (chain == '') clearSel();
+                $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
+                getPath();
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
+    }
+
     function viewSave() {
         var path = '/viewimg?deployFile=' + $('#saveInfo').text();
         var html = "<img src='" + path + "'/>"
@@ -172,12 +206,12 @@
     }
     function setchain() {
         chain = uuid;
-        $('#chain').text(chain);
+        $('#chain').val(chain);
     }
 
     function clearchain() {
         chain = '';
-        $('#chain').text('');
+        $('#chain').val('');
     }
     function clearSel() {
         $("#chooseTagList").empty();
@@ -187,7 +221,7 @@
     function save() {
         var param = {};
         param.img = $('#path').text();
-        param.chain = $('#chain').text();
+        param.chain = $('#chain').val();
         var taglist = '';
         $('#chooseTagList span').each(function (i) {
             var tag = $(this).text();

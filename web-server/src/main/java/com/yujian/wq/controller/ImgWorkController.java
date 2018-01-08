@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 添加描述
@@ -203,8 +205,23 @@ public class ImgWorkController {
             list = FileUtils.readLines(new File(tagPath), "utf-8");
             if (list != null) {
 
+                List<String> resList = new ArrayList<>();
+                Map<String, List<String>> tagMap = new LinkedHashMap<>();
+                Pattern pattern = Pattern.compile("--(.*)--");
+                for (String str : list) {
+                    if (StringUtils.isNotBlank(str)) {
+                        Matcher match = pattern.matcher(str);
+                        if (match.find()) {
+                            String key = match.group(1);
+                            resList = new ArrayList<>();
+                            tagMap.put(key, resList);
+                        }else{
+                            resList.add(str);
+                        }
+                    }
+                }
                 resp.setStatus(Response.SUCCESS);
-                resp.setData(list);
+                resp.setData(tagMap);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -277,6 +294,27 @@ public class ImgWorkController {
             resp.setMsg(e.toString());
         }
 
+        return resp;
+    }
+
+    @RequestMapping(value = "/del", method = RequestMethod.POST)
+    @ResponseBody
+    public Response del(String path) {
+        Response resp = new Response();
+        if (StringUtils.isBlank(path)) {
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg("path is null");
+            return resp;
+        }
+        File imgFile = new File(path);
+
+        if (!imgFile.exists()) {
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg("imgFile is not exists");
+            return resp;
+        }
+
+        imgFile.delete();
         return resp;
     }
 
