@@ -33,4 +33,14 @@
     </insert>
 
 
+
+    <insert id="insertImgTrain" useGeneratedKeys="true" keyProperty="id" parameterType="ImgTrainEntity">
+         insert into img_train
+        (img,tag_id,tag)
+        values(
+        #{img,jdbcType=VARCHAR},
+        #{tagId,jdbcType=INTEGER},
+        #{tag,jdbcType=VARCHAR}
+        )
+    </insert>
 </mapper>

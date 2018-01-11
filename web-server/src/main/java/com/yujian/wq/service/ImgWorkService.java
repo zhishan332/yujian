@@ -1,6 +1,7 @@
 package com.yujian.wq.service;
 
 import com.yujian.wq.mapper.ImgEntity;
+import com.yujian.wq.mapper.ImgTrainEntity;
 import com.yujian.wq.mapper.ImgWorkMapper;
 import com.yujian.wq.mapper.TagEntity;
 import org.apache.commons.io.FileUtils;
@@ -31,6 +32,15 @@ public class ImgWorkService {
     @Transactional
     public String insert(String path, ImgEntity imgEntity, List<TagEntity> tagEntityList) throws IOException {
 
+        File file = new File(path);
+
+        String oldName = file.getName();
+
+        int suffixIndex = oldName.lastIndexOf(".");
+
+        String suffix = oldName.substring(suffixIndex);
+
+        imgEntity.setImg(imgEntity.getImg() + suffix);
         int flag = imgWorkMapper.insertImgAndGetId(imgEntity);
 
         if (flag > 0) {
@@ -43,6 +53,25 @@ public class ImgWorkService {
 
         }
 
+
+        String fileName = imgEntity.getImg() + suffix;
+
+
+        String deployPathFile = deployPath + imgEntity.getFolder() + File.separator + fileName;
+
+        FileUtils.copyFile(file, new File(deployPathFile));
+
+        File checkFile = new File(deployPathFile);
+        if (checkFile.exists()) {
+            file.delete();
+        }
+
+        return deployPathFile;
+    }
+
+
+    @Transactional
+    public String insertTrain(String path, ImgTrainEntity imgEntity) throws IOException {
         File file = new File(path);
 
         String oldName = file.getName();
@@ -51,10 +80,17 @@ public class ImgWorkService {
 
         String suffix = oldName.substring(suffixIndex);
 
+        imgEntity.setImg(imgEntity.getImg() + suffix);
+
+        int flag = imgWorkMapper.insertImgTrain(imgEntity);
+
+        if (flag > 0) {
+            int id = imgEntity.getId();
+        }
+
         String fileName = imgEntity.getImg() + suffix;
 
-
-        String deployPathFile = deployPath + imgEntity.getFolder() + File.separator + fileName;
+        String deployPathFile = deployPath + imgEntity.getTagId() + File.separator + fileName;
 
         FileUtils.copyFile(file, new File(deployPathFile));
 

@@ -53,6 +53,10 @@ public class NvshensImgDownPipeline implements Pipeline<NvshensImgSpider> {
 
                     String suffix = imgUrl.substring(suffixIndex);
                     FileUtils.copyInputStreamToFile(response.getEntity().getContent(), new File(path + System.nanoTime() + suffix));
+                    //check train
+                    File checkFile = new File(path);
+                    File[] listAry = checkFile.listFiles();
+                    if (listAry != null && listAry.length > 10) return;
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {

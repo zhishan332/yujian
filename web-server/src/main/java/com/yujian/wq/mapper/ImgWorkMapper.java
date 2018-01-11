@@ -14,4 +14,6 @@ public interface ImgWorkMapper {
     public int insertImgAndGetId(ImgEntity imgEntity);
 
     public int insertTag(TagEntity tagEntity);
+
+    public int insertImgTrain(ImgTrainEntity imgEntity);
 }

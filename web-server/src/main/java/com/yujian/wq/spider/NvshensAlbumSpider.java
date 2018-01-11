@@ -45,9 +45,9 @@ public class NvshensAlbumSpider implements HtmlBean {
     public static void main(String[] args) {
         GeccoEngine.create()
                 .classpath("com.yujian.wq.spider")
-                .start("https://www.nvshens.com/girl/20763/album/")
-                .thread(8)
-                .interval(2000)
+                .start("https://www.nvshens.com/girl/22162/album/")
+                .thread(32)
+                .interval(300)
                 .loop(false)
                 .mobile(false)
                 .start();

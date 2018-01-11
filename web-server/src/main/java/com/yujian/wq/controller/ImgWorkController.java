@@ -1,6 +1,7 @@
 package com.yujian.wq.controller;
 
 import com.yujian.wq.mapper.ImgEntity;
+import com.yujian.wq.mapper.ImgTrainEntity;
 import com.yujian.wq.mapper.TagEntity;
 import com.yujian.wq.service.ImgWorkService;
 import org.apache.commons.io.FileUtils;
@@ -195,6 +196,8 @@ public class ImgWorkController {
         return resp;
     }
 
+    private Map<String, Integer> tagIdMap = new HashMap<>();
+
     @RequestMapping(value = "/taglist", method = RequestMethod.GET)
     @ResponseBody
     public Response getAllTag() {
@@ -215,8 +218,10 @@ public class ImgWorkController {
                             String key = match.group(1);
                             resList = new ArrayList<>();
                             tagMap.put(key, resList);
-                        }else{
-                            resList.add(str);
+                        } else {
+                            String[] data = str.split(" ");
+                            tagIdMap.put(str, Integer.valueOf(data[1]));
+                            resList.add(data[0]);
                         }
                     }
                 }
@@ -297,6 +302,65 @@ public class ImgWorkController {
         return resp;
     }
 
+    @RequestMapping(value = "/saveTrain", method = RequestMethod.POST)
+    @ResponseBody
+    public Response saveTrain(String img, String tag) {
+        Response resp = new Response();
+
+        try {
+
+            if (StringUtils.isBlank(img)) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("img is null");
+                return resp;
+            }
+            if (StringUtils.isBlank(tag)) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("tag is null");
+                return resp;
+            }
+
+            File imgFile = new File(img);
+
+            if (!imgFile.exists()) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("imgFile is not exists");
+                return resp;
+            }
+
+            String fileName = UUID.randomUUID().toString();
+
+            ImgTrainEntity imgEntity = new ImgTrainEntity();
+            imgEntity.setImg(fileName);
+
+            String[] tagList = tag.split(";");
+
+            for (String tagStr : tagList) {
+                if (StringUtils.isBlank(tagStr)) continue;
+                int type = tagIdMap.get(tagStr);
+                if (type > 0) {
+                    imgEntity.setTagId(type);
+                    imgEntity.setTag(tagStr);
+                    break;
+                }
+            }
+
+
+            String deployFile = imgWorkService.insertTrain(img, imgEntity);
+            resp.setStatus(Response.SUCCESS);
+            resp.setData(deployFile);
+            resp.setMsg("save to train file:" + fileName);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg(e.toString());
+        }
+
+        return resp;
+    }
+
+
     @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
     public Response del(String path) {
@@ -319,8 +383,7 @@ public class ImgWorkController {
     }
 
     //获得当天0点时间
-    public static int getCurrentMonthLastDay()
-    {
+    public static int getCurrentMonthLastDay() {
         Calendar cal = Calendar.getInstance();
         return cal.get(Calendar.DATE);
     }
