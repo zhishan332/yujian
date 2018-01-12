@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 添加描述
@@ -209,24 +207,15 @@ public class ImgWorkController {
             if (list != null) {
 
                 List<String> resList = new ArrayList<>();
-                Map<String, List<String>> tagMap = new LinkedHashMap<>();
-                Pattern pattern = Pattern.compile("--(.*)--");
                 for (String str : list) {
                     if (StringUtils.isNotBlank(str)) {
-                        Matcher match = pattern.matcher(str);
-                        if (match.find()) {
-                            String key = match.group(1);
-                            resList = new ArrayList<>();
-                            tagMap.put(key, resList);
-                        } else {
-                            String[] data = str.split(" ");
-                            tagIdMap.put(str, Integer.valueOf(data[1]));
-                            resList.add(data[0]);
-                        }
+                        String[] data = str.split(" ");
+                        tagIdMap.put(str, Integer.valueOf(data[1]));
+                        resList.add(data[0]);
                     }
                 }
                 resp.setStatus(Response.SUCCESS);
-                resp.setData(tagMap);
+                resp.setData(resList);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -263,7 +252,7 @@ public class ImgWorkController {
                 return resp;
             }
 
-            String fileName = UUID.randomUUID().toString();
+            String fileName = getUUID();
             int folder = getCurrentMonthLastDay() % DeployFolderNum;
 
             ImgEntity imgEntity = new ImgEntity();
@@ -328,7 +317,7 @@ public class ImgWorkController {
                 return resp;
             }
 
-            String fileName = UUID.randomUUID().toString();
+            String fileName = getUUID();
 
             ImgTrainEntity imgEntity = new ImgTrainEntity();
             imgEntity.setImg(fileName);
@@ -386,6 +375,12 @@ public class ImgWorkController {
     public static int getCurrentMonthLastDay() {
         Calendar cal = Calendar.getInstance();
         return cal.get(Calendar.DATE);
+    }
+
+    private String getUUID(){
+        String uuid = UUID.randomUUID().toString(); //获取UUID并转化为String对象
+        uuid = uuid.replace("-", "");
+        return uuid;
     }
 
     public static void main(String[] args) {

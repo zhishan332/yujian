@@ -119,7 +119,7 @@
         });
 
         var storeChain = myStorage['chain'];
-        if(storeChain!=null){
+        if (storeChain != null) {
             $('#chain').val(storeChain);
         }
     }
@@ -161,26 +161,30 @@
                 if (chooseList != null) {
                     aary = chooseList.split(';');
                 }
-                for (var key in data) {
-                    for (var i = 0; i < data[key].length; i++) {
-                        if(aary !=null){
-                            var isAdd = true;
-                            for(var n  =0 ;n < aary.length;n++){
-                                if( data[key][i] == aary[n]){
-                                    isAdd = false;
-                                    break;
-                                }
-                            }
-                            if(isAdd){
-                                spanStr += "<span>" + data[key][i] + "</span>"
-                            }
-                        }else{
-                            spanStr += "<span>" + data[key][i] + "</span>"
-                        }
 
-                    }
-                    spanStr += '<hr style="margin-top: 2px;width: 100%">';
+                for (var i = 0; i < data.length(); i++) {
+                    spanStr += "<span>" + data[i] + "</span>"
                 }
+//                for (var key in data) {
+//                    for (var i = 0; i < data[key].length; i++) {
+//                        if(aary !=null){
+//                            var isAdd = true;
+//                            for(var n  =0 ;n < aary.length;n++){
+//                                if( data[key][i] == aary[n]){
+//                                    isAdd = false;
+//                                    break;
+//                                }
+//                            }
+//                            if(isAdd){
+//                                spanStr += "<span>" + data[key][i] + "</span>"
+//                            }
+//                        }else{
+//                            spanStr += "<span>" + data[key][i] + "</span>"
+//                        }
+//
+//                    }
+//                    spanStr += '<hr style="margin-top: 2px;width: 100%">';
+//                }
 
                 $('#tagList').empty();
                 $('#tagList').append(spanStr);
@@ -266,7 +270,7 @@
         });
         param.tag = taglist;
         $('#saveInfo').empty();
-        var reqUrl = $("#contextPath").val() + "/save";
+        var reqUrl = $("#contextPath").val() + "/saveTrain";
         AjaxUtil.post(reqUrl, param, function (resp) {
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
