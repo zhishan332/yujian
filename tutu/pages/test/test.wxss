@@ -4,18 +4,26 @@
 #mainContainer{
     height: 100%;
     width: 100%;
+    background-color: black;
 }
 
 .itemSelf{
     height: 100%;
     position: absolute;
     box-sizing:border-box;
-    margin:10rpx;
+    /* margin:10rpx; */
     overflow: hidden;
-    padding: 10rpx;
+    /* padding: 10rpx; */
     box-shadow: 0 0 1px 1px rgba(0,0,0,0.1);
-    height: 95%;
-    width: 96%;
-    background-color: gray;
+    width: 99%;
+    background-color: black;
     color: white;
+}
+.img_view{
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    background-position: center center;
+    background-size: cover;
 }

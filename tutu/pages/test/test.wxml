@@ -1,4 +1,5 @@
 <import src="hSwiper.wxml"/>
-<view id="mainContainer">
+<view id="mainContainer" bindtap="bindViewTap">
     <template is="hSwiper" data="{{...hSwiperVar}}"></template>
 </view>
+<loading hidden="{{!showLoading}}" bindchange="hideLoading">{{loadingMessage}}</loading>

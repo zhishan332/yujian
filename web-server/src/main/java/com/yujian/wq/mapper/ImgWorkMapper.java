@@ -22,4 +22,8 @@ public interface ImgWorkMapper {
 
     public List<ImgEntity> findNotIn(Map<String, Object> param);
 
+    public List<ImgEntity> findRandom(Map<String, Object> param);
+
+    public int findTotal();
+
 }

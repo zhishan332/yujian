@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class ImageDto  implements Serializable{
 
     private String url;
+    private String title;
     private String chain;
     private Integer id;
 
@@ -33,5 +34,13 @@ public class ImageDto  implements Serializable{
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

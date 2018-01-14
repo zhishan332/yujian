@@ -16,6 +16,7 @@ public class ImgEntity implements Serializable {
     private int tagId;
     private String tag;
     private String chain;
+    private String title;
     private Timestamp createTime;
 
 
@@ -65,5 +66,13 @@ public class ImgEntity implements Serializable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
