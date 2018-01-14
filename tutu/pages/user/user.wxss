@@ -1,4 +1,5 @@
 /**index.wxss**/
+
 .userinfo {
   display: flex;
   flex-direction: column;
@@ -18,4 +19,31 @@
 
 .usermotto {
   margin-top: 200px;
+}
+
+.image {
+  width: 100%;
+  margin-bottom: 10rpx;
+  border-radius: 20rpx;
+}
+
+.card {
+  width: 80%;
+  margin: 20px;
+  padding: 20px;
+  border: 1rpx solid lightgrey;
+  text-align: center;
+  background-color: whitesmoke;
+  box-shadow: 5px 5px 3px #888;
+  border-radius: 20rpx;
+}
+
+.detail {
+  margin-top: 30rpx;
+}
+
+.tip {
+  margin-top: 10px;
+  font-size: 11px;
+  text-align: right;
 }

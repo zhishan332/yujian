@@ -1,13 +1,48 @@
-<view class="container" bindtouchstart="touchStart" bindtouchmove="touchMove" bindtouchend="touchEnd" >
+<!--index.wxml-->
+<!-- <view class="menu" style="display: {{!previewing ? 'block' : 'none'}};">
+    <scroll-view scroll-x="true" class="top-nav">
+        <block wx:for="{{navItems}}" wx:for-item="item" wx:for-index="itemIdx">
+            <view bindtap="navItemTap" class="top-btn {{navBtnSelectIdx == itemIdx ? 'top-hoverd-btn' : ''}}" data-index="{{itemIdx}}" data-cid="{{item.cid}}">{{item.title}}</view>
+        </block>
+    </scroll-view>
+</view> -->
+<scroll-view class="container" lower-threshold="80" scroll-y="true" bindscrolltolower="loadMoreEvent" style="display: {{!previewing ? 'block' : 'none'}};" scroll-top="{{scrollTop}}" bindscroll="scroll">
+  <view class="img-container">
+    <view class="item-group" wx:for="{{layoutList}}" wx:for-item="group" wx:for-index="groupIdx">
+      <block wx:for="{{group}}" wx:for-item="item" wx:for-index="itemIdx">
 
-<block class="box1"  wx:if="{{ currentPage ==1 }}">
-    <view class="img_view"   style="background-image:url('{{url1}}');"></view>
-</block>
-<block class="box2"   wx:if="{{ currentPage ==2 }}">
-    <view class="img_view"  style="background-image:url('{{url2}}');"></view>
-</block>
-<block class="box3"  wx:if="{{ currentPage ==3 }}">
-    <view class="img_view"  style="background-image:url('{{url3}}');"></view>
-</block>
+        <image bindtap="showPreview" data-index="{{itemIdx + groupIdx * 2}}" class="img-item {{!item ? 'empty' : ''}}" src="{{item.thumbSrc}}" mode="aspectFill"></image>
 
-</view>
+      </block>
+    </view>
+
+  </view>
+  <view class="load-more-wrap" style="display: {{showLoadMore ? 'block' : 'none'}}">
+    <block wx:if="{{hasMore}}">
+      <text class="gif-loading" />
+      <text class="loading-text">正在加载更多...</text>
+    </block>
+    <block wx:else>
+      <text>没有了</text>
+    </block>
+  </view>
+</scroll-view>
+<swiper class="swiper-container" duration="400" current="{{previewIndex}}" bindtap="dismissPreview" style="display: {{previewing ? 'block' : 'none'}};">
+  <block wx:for="{{openImgList}}" wx:for-item="item">
+    <swiper-item>
+      <view class="film-cover">
+        <image src="{{item.largeSrc}}" mode="aspectFit" bindlongtap="showActionSheet" data-largeSrc="{{item.largeSrc}}"></image>
+        <view class="film-rating">
+           <view class='img-title'>我不敢相信自己已经单身</view>
+           <view class='img-hot'>204 条热度</view>
+        </view>
+      </view>
+    </swiper-item>
+  </block>
+</swiper>
+<action-sheet hidden="{{!showingActionsSheet}}" bindchange="dismissActionSheet">
+  <action-sheet-item class="highlight" bindtap="saveImage">save</action-sheet-item>
+  <action-sheet-cancel class="cancel">cancel</action-sheet-cancel>
+</action-sheet>
+<loading hidden="{{!showLoading}}" bindchange="hideLoading">{{loadingMessage}}</loading>
+<toast hidden="{{!showToast}}" duration="1000" bindchange="hideToast">{{toastMessage}}</toast>

@@ -1,173 +1,203 @@
 //index.js
-const util = require('../../utils/util.js')
+const config = require('../../conf.js');
+const util = require('../../utils/util.js');
+const request = require('../../utils/request.js');
 
-//获取应用实例
-const app = getApp()
-var touchDot = 0;//触摸时的原点
-var time = 0;// 时间记录，用于滑动时且时间小于1s则执行左右滑动
-var interval = "";// 记录/清理 时间记录
-var imgLoadOk = false;
-var loadOver = true;
+var app = getApp()
 Page({
   data: {
-    images: {},
-
-    currentPage: 1,
-
-    url1: 'http://n.sinaimg.cn/ent/4_img/upload/d932d205/w722h1024/20180107/hpwx-fyqincu9914477.jpg',
-    url2: 'https://img.onvshen.com:85/gallery/24515/22906/s/002.jpg',
-    url3: 'http://c4.haibao.cn/img/600_0_100_1/1513843724.0094/00822c22c782d7c365235ac28557021e.jpeg',
-    imageUrl: 'http://n.sinaimg.cn/ent/4_img/upload/d932d205/w722h1024/20180107/hpwx-fyqincu9914477.jpg',
-
-    lastX: 0,
-
-    lastY: 0,
-
-    imagewidth: 0,//缩放后的宽
-
-    imageheight: 0,//缩放后的高
-
-    imagepadding: 0,
-    userInfo: null,
-
-    hasUserInfo: false,
-
-    canIUse: wx.canIUse('button.open-type.getUserInfo')
+    showLoading: false,
+    loadingMessage: '',
+    showToast: false,
+    toastMessage: '',
+    imgList: [],
+    openImgList: [],
+    layoutList: [],
+    layoutColumnSize:2,
+    previewing: false,
+    previewIndex: 0,
+    showingActionsSheet: false,
+    inActionImgUrl: '',
+    navItems: [],
+    navBtnSelectIdx: 0,
+    page: 0,
+    mid: '',
+    hasMore: true,
+    scrollTop: 1,
+    showLoadMore: false
   },
-
-  // 触摸开始事件
-  touchStart: function (e) {
-    touchDot = e.touches[0].pageX; // 获取触摸时的原点
-
-    // 使用js计时器记录时间
-    interval = setInterval(function () {
-
-      time++;
-    }, 100);
-
+  showLoading(message) {
+    this.setData({ showLoading: true, loadingMessage: message });
   },
-  // 触摸移动事件
-  touchMove: function (e) {
-    var touchMove = e.touches[0].pageX;
-  
-    // 向左滑动
-    if (touchMove - touchDot <= -40 && loadOver) {
-      loadOver = false;
-      wx.request({
-        url: 'http://localhost:8080/taglist', //仅为示例，并非真实的接口地址
-        data: {
-          x: '',
-          y: ''
-        },
-        header: {
-          'content-type': 'application/json' // 默认值
-        },
-        success: function (res) {
-          console.log(res.data)
-        },
-        complete:function(res){
-          loadOver = true;
-        }
-      }),
-
-      console.log("touchMove:" + touchMove + " touchDot:" + touchDot + " diff:" + (touchMove - touchDot));
-      this.setData({
-        url1: 'http://c3.haibao.cn/img/600_0_100_0/1514527662.7601/9de075d7bc0cbac6a6b513c36d8e7545.jpg',
-        url2: 'http://c3.haibao.cn/img/600_0_100_0/1514535970.8545/97ba25f60f5e7dd0572266af0fffcd36.jpg',
-        url3: 'http://n.sinaimg.cn/ent/4_img/upload/d932d205/w740h1024/20180107/1G7C-fyqincu9914500.jpg',
-        currentPage: 1
-      });
+  hideLoading() {
+    this.setData({ showLoading: false, loadingMessage: '' });
+  },
+  showToast(toastMessage) {
+    this.setData({ showToast: true, toastMessage });
+  },
+  hideToast() {
+    this.setData({ showToast: false, toastMessage: '' });
+  },
+  renderImgList() {
+    let layoutColumnSize = this.data.layoutColumnSize;
+    let layoutList = [];
+    if (this.data.imgList.length) {
+      layoutList = util.matrixArr((this.data.imgList), layoutColumnSize);
+      let lastRow = layoutList[layoutList.length - 1];
+      if (lastRow.length < layoutColumnSize) {
+        let supplement = Array(layoutColumnSize - lastRow.length).fill(0);
+        lastRow.push(...supplement);
+      }
     }
-    // 向右滑动
-    if (touchMove - touchDot >= 40) {
-      console.log("touchMove:" + touchMove + " touchDot:" + touchDot + " diff:" + (touchMove - touchDot));
-      var cup = this.data.currentPage;
-      if (cup < 3) {
-        this.setData({
-          currentPage: cup + 1
+    this.setData({ layoutList });
+  },
+  fetchTags() {
+    this.showLoading('加载中...');
+    console.log('url: ' + util.getUrl('/tags'));
+    return request({ method: 'GET', url: util.getUrl('/tags') });
+  },
+  fetchImgs(cid) {
+    this.showLoading('加载中...');
+    return request({ method: 'GET', url: util.getUrl('/getImage', [{ start: this.data.page }, { openId: '' }, { tag: '2' }]) });
+  },
+  showPreview(event) {
+    if (this.data.showActionsSheet) {
+      return;
+    }
+    let index = event.target.dataset.index;
+    if (index > this.data.imgList.length - 1) {
+      return;
+    }
+    console.log("open..." + index);
+
+    let previewIndex = this.data.imgList[index];
+
+    var len = this.data.imgList.length;
+
+    let showList = [];
+
+    for (var i = index; i < this.data.imgList.length; i++) {
+      showList.push(this.data.imgList[i]);
+    }
+    // showList.reverse();
+    // console.log('data:' + showList + ";index:" + index);
+    this.setData({ previewing: true, previewIndex: 0, openImgList: showList });
+   
+  },
+  dismissPreview() {
+    if (this.data.showingActionsSheet) {
+      return;
+    }
+    this.setData({ previewing: false, previewIndex: 0 });
+    // console.log("close...");
+  },
+  dismissActionSheet() {
+    this.setData({ showingActionsSheet: false, inActionImgUrl: '' });
+  },
+  showActionSheet(event) {
+    this.setData({ showingActionsSheet: true, inActionImgUrl: event.target.dataset.largesrc });
+  },
+  saveImage() {
+    this.showLoading('saving image...');
+    console.log('download_image_url', this.data.inActionImgUrl);
+
+    wx.downloadFile({
+      url: this.data.inActionImgUrl,
+      type: 'image',
+      success: (resp) => {
+        wx.saveFile({
+          tempFilePath: resp.tempFilePath,
+          success: (resp) => {
+            this.showToast('保存成功...');
+          },
+          fail: (resp) => {
+            console.log('failed to save, try again...', resp);
+          },
+          complete: (resp) => {
+            console.log('complete', resp);
+            this.hideLoading();
+          },
         });
-      } else {
-        this.setData({
-          url1: 'http://c1.haibao.cn/img/600_0_100_0/1514367106.359/4fa0e7bdce3b6fa974d4a549edd9c4c0.jpg',
-          url2: 'http://c4.haibao.cn/img/600_0_100_0/1514367108.0392/68f02b78acb3bfb1a3b7dab884aeb4dc.jpg',
-          url3: 'http://c4.haibao.cn/img/600_0_100_0/1514367112.7627/63eba430d637cf53c5850594caefa68e.jpg',
-          currentPage: 1,
-        });
-      }
-    }
-    // touchDot = touchMove; //每移动一次把上一次的点作为原点（好像没啥用）
+      },
+
+      fail: (resp) => {
+        console.log('fail', resp);
+      },
+    });
+    this.setData({ showingActionsSheet: false, inActionImgUrl: '' });
   },
-  // 触摸结束事件
-  touchEnd: function (e) {
-    clearInterval(interval); // 清除setInterval
-    time = 0;
-
+  scroll(e) {
+    this.setData({ scrollTop: e.detail.scrollTop });
   },
-  handletap: function (event) {
-
-    console.log(event)
-  },
-  imageLoad: function (e) {
-
-    imgLoadOk = true;
-
-    console.log(111111111);
-  },
-  //事件处理函数
-  bindViewTap: function () {
-
-    wx.navigateTo({
-      url: '../logs/logs'
-
-    })
-  },
-  onLoad: function () {
-
-    if (app.globalData.userInfo) {
-
-      this.setData({
-        userInfo: app.globalData.userInfo,
-        hasUserInfo: true
-
-      });
-      if ('zhishan' == this.data.userInfo) {
-
-        console.log('zhishan is load...')
-      }
-    } else if (this.data.canIUse) {
-
-      // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-      // 所以此处加入 callback 以防止这种情况
-      app.userInfoReadyCallback = res => {
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
-
-        })
-      }
-    } else {
-
-      // 在没有 open-type=getUserInfo 版本的兼容处理
-      wx.getUserInfo({
-        success: res => {
-          app.globalData.userInfo = res.userInfo
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true
-
-          })
-        }
-      })
-    }
-  },
-  getUserInfo: function (e) {
-
-    console.log(e)
-    app.globalData.userInfo = e.detail.userInfo
+  navItemTap(e) {
     this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
+      scrollTop: -39,
+    });
+    let index = e.target.dataset.index;
+    let cid = e.target.dataset.cid;
+    if (index != this.navBtnSelectIdx) {
+      this.setData({ navBtnSelectIdx: index, page: 1, mid: '' });
+      this.fetchImgs(cid).then(resp => {
+        this.imgRespHandler(resp, true);
+      });
+    }
+  },
+  imgRespHandler(resp, flush) {
+    // console.log("data:" + resp);
+    this.hideLoading();
+    if (resp.status != 1) {
+      this.showToast('load failed, try again...');
+      this.setData({ page: this.data.page-- });
+      return;
+    }
+    if (util.isEmpty(resp.data)) {
+      this.setData({ hasMore: false });
+      this.showToast('all loaded...');
+      this.setData({ page: this.data.page-- });
+      return;
+    }
+    // this.showToast('load successfully');
+    for (var index in resp.data) {
+      resp.data[index].largeSrc = util.imgUrlFix(resp.data[index].url);
+      resp.data[index].thumbSrc = util.imgUrlFix(resp.data[index].url);
+      resp.data[index].smallSrc = util.imgUrlFix(resp.data[index].url);
+    }
 
-    })
+    this.setData({ 'imgList': flush ? resp.data : this.data.imgList.concat(resp.data), 'mid': resp.mid });
+    this.renderImgList();
+  },
+  onPullDownRefresh() {
+    this.loadImgData(true);
+  },
+  loadMoreEvent() {
+    this.setData({
+      showLoadMore: true,
+      page: this.data.page + 1
+    });
+    this.loadImgData(false);
+  },
+  loadImgData(flush) {
+    var cid;
+    if (!util.isEmpty(this.data.navItems)) {
+      cid = this.data.navItems[this.data.navBtnSelectIdx].cid;
+    }
+    this.fetchImgs(cid).then((resp) => {
+      this.imgRespHandler(resp, flush);
+    });
+  },
+  loadTagData() {
+    this.fetchTags().then((resp) => {
+      this.hideLoading();
+      if (resp.code !== 0) {
+        this.showToast('load failed, try again...');
+        return;
+      }
+      this.setData({ 'navItems': resp.data });
+    });
+  },
+  onLoad() {
+    this.renderImgList();
+    // this.loadTagData();
+    this.loadImgData();
   }
 })

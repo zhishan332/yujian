@@ -8,6 +8,11 @@ Page({
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
+    warnSize: 'default',
+    primarySize: 'default',
+    disabled: false,
+    plain: false,
+    loading: false,
     menuitems: [
       { text: '账号信息', url: '../userinfo/userinfo', icon: '../../images/usermenu/info.png', tips: '' },
       { text: '预订单', url: '../borrowbook/borrowbook?status=N', icon: '../../images/usermenu/order.png', tips: '' },
