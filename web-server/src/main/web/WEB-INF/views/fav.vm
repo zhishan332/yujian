@@ -1,23 +1,41 @@
 <style type="text/css">
-    span {
+   #tagList span {
         background: #fff;
         border: 1px solid green;
         float: left;
         color: #000000;
         font-family: "黑体";
-        font-size: 16px;
+        font-size: 18px;
         margin: 3px;
-        width: 50px;
+        width: 90px;
         text-align: center;
         overflow: hidden;
-        padding: 2px, 5px, 2px, 5px;
+        padding: 10px;
     }
+
+   #chooseTagList span {
+       background: #fff;
+       border: 1px solid green;
+       float: left;
+       color: #000000;
+       font-family: "黑体";
+       font-size: 18px;
+       margin: 3px;
+       width: 90px;
+       text-align: center;
+       overflow: hidden;
+       padding: 10px;
+   }
 
     .btn {
         width: 100px;
         height: 40px;
+        margin: 5px;
+        line-height : 30px ;
+        padding: 5px;
         font-family: "黑体";
         font-size: 18px;
+        -webkit-appearance : none ;  /*解决iphone safari上的圆角问题*/
     }
 
     .btn_sm {
@@ -35,13 +53,13 @@
 
 <div style="padding: 10px;width: 98%">
     <div style="width: 69%;float: left">
-        <img src="" id="npcImg" style="max-width: 99%"/>
+        <img src="" id="npcImg" style="max-height:980px"/>
     </div>
     <div style="width: 27%;float: left;border-left:1px solid #808080;padding: 10px;min-height: 800px">
 
         <ul style="margin-top: 0;padding-left: 10px">
             <li>
-                <h3>选择</h3>
+                <h3>选择 剩余：（<span id="totalNum"></span>）张</h3>
                 <input type="button" class="btn" value="上一个" id="preBtn" onclick="pre()">
                 <input type="button" class="btn" value="下一个" id="nextBtn" onclick="next()">
                 <input type="button" class="btn" value="删除" onclick="del()">
@@ -102,8 +120,14 @@
 
     function init() {
         $("#tagList").delegate("span", "click", function () {
+//            $('#chooseTagList span').each(function (i) {
+//
+//                $("#tagList").append($(this));
+//            });
             var tag = $(this).text();
-            $("#chooseTagList").append($(this));
+//            $("#chooseTagList").append($(this));
+            //开启自动保存
+            save(tag);
         });
 
         $("#chooseTagList").delegate("span", "click", function () {
@@ -136,7 +160,9 @@
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
             } else if (resp.status == 1) {
-                $('#path').text(resp.data);
+                var data = resp.data;
+                $('#path').text(data.path);
+                $('#totalNum').text(data.total);
             } else if (resp.status == 0) {
                 layer.msg(resp.msg);
             } else {
@@ -162,7 +188,7 @@
                     aary = chooseList.split(';');
                 }
 
-                for (var i = 0; i < data.length(); i++) {
+                for (var i = 0; i < data.length; i++) {
                     spanStr += "<span>" + data[i] + "</span>"
                 }
 //                for (var key in data) {
@@ -258,16 +284,20 @@
         getTag();
     }
 
-    function save() {
+    function save(tag) {
         var param = {};
         param.img = $('#path').text();
         param.chain = $('#chain').val();
         var taglist = '';
-        $('#chooseTagList span').each(function (i) {
-            var tag = $(this).text();
-            taglist += tag;
-            taglist += ';';
-        });
+        if(tag !=null){
+            taglist =tag;
+        }else{
+            $('#chooseTagList span').each(function (i) {
+                var tag = $(this).text();
+                taglist += tag;
+                taglist += ';';
+            });
+        }
         param.tag = taglist;
         $('#saveInfo').empty();
         var reqUrl = $("#contextPath").val() + "/saveTrain";

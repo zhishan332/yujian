@@ -22,7 +22,7 @@ DROP TABLE IF EXISTS `img`;
 CREATE TABLE `img` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `img` varchar(255) NOT NULL,
-  `folder` int(11) NOT NULL,
+  `tagId` int(11) NOT NULL,
   `chain` varchar(64) DEFAULT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)

@@ -2,6 +2,9 @@ package com.yujian.wq.mapper;
 
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 添加描述
  *
@@ -15,5 +18,8 @@ public interface ImgWorkMapper {
 
     public int insertTag(TagEntity tagEntity);
 
-    public int insertImgTrain(ImgTrainEntity imgEntity);
+    public List<ImgEntity> find(Map<String, Object> param);
+
+    public List<ImgEntity> findNotIn(Map<String, Object> param);
+
 }

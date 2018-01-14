@@ -40,7 +40,7 @@
         <logger name="com.mchange" level="ERROR" additivity="false"/>
         <logger name="org.apache.commons" level="ERROR" additivity="false"/>
 
-        <root level="DEBUG">
+        <root level="INFO">
             <appenderRef ref="AllLog"/>
             <appenderRef ref="Console"/>
         </root>

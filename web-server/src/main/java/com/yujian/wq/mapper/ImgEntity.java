@@ -13,7 +13,8 @@ public class ImgEntity implements Serializable {
 
     private int id;
     private String img;
-    private int folder;
+    private int tagId;
+    private String tag;
     private String chain;
     private Timestamp createTime;
 
@@ -50,11 +51,19 @@ public class ImgEntity implements Serializable {
         this.createTime = createTime;
     }
 
-    public int getFolder() {
-        return folder;
+    public int getTagId() {
+        return tagId;
     }
 
-    public void setFolder(int folder) {
-        this.folder = folder;
+    public void setTagId(int tagId) {
+        this.tagId = tagId;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

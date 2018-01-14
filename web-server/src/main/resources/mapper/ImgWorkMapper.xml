@@ -6,7 +6,7 @@
     <resultMap id="imgMap" type="ImgEntity">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="img" column="img" jdbcType="VARCHAR"/>
-        <result property="folder" column="folder" jdbcType="INTEGER"/>
+        <result property="tagId" column="tag_id" jdbcType="INTEGER"/>
         <result property="chain" column="chain" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -14,10 +14,11 @@
 
     <insert id="insertImgAndGetId" useGeneratedKeys="true" keyProperty="id" parameterType="ImgEntity">
         insert into img
-        (img,folder,chain)
+        (img,tag_id,tag,chain)
         values(
         #{img,jdbcType=VARCHAR},
-        #{folder,jdbcType=VARCHAR},
+        #{tagId,jdbcType=INTEGER},
+        #{tag,jdbcType=VARCHAR},
         #{chain,jdbcType=VARCHAR}
         )
     </insert>
@@ -33,14 +34,27 @@
     </insert>
 
 
+    <select id="find" resultMap="imgMap">
+        select
+        img,tag_id
+        from img
+        <where>
+            tag_id = #{tagId,jdbcType=INTEGER}
+        </where>
+        order by id desc
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
 
-    <insert id="insertImgTrain" useGeneratedKeys="true" keyProperty="id" parameterType="ImgTrainEntity">
-         insert into img_train
-        (img,tag_id,tag)
-        values(
-        #{img,jdbcType=VARCHAR},
-        #{tagId,jdbcType=INTEGER},
-        #{tag,jdbcType=VARCHAR}
-        )
-    </insert>
+
+    <select id="findNotIn" resultMap="imgMap">
+        select
+        img,tag_id
+        from img
+        <where>
+            tag_id != #{tagId,jdbcType=INTEGER}
+        </where>
+        order by id desc
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
+
 </mapper>

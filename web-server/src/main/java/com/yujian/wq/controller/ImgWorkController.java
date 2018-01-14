@@ -180,7 +180,10 @@ public class ImgWorkController {
 
 
                 resp.setStatus(Response.SUCCESS);
-                resp.setData(workFile.getAbsolutePath());
+                Map<String, String> data = new HashMap<>();
+                data.put("path", workFile.getAbsolutePath());
+                data.put("total", String.valueOf((list.length)));
+                resp.setData(data);
                 return resp;
             }
             resp.setStatus(Response.FAILURE);
@@ -210,7 +213,7 @@ public class ImgWorkController {
                 for (String str : list) {
                     if (StringUtils.isNotBlank(str)) {
                         String[] data = str.split(" ");
-                        tagIdMap.put(str, Integer.valueOf(data[1]));
+                        tagIdMap.put(data[0], Integer.valueOf(data[1]));
                         resList.add(data[0]);
                     }
                 }
@@ -257,7 +260,7 @@ public class ImgWorkController {
 
             ImgEntity imgEntity = new ImgEntity();
             imgEntity.setImg(fileName);
-            imgEntity.setFolder(folder);
+            imgEntity.setTagId(folder);
             if (StringUtils.isNotBlank(chain)) imgEntity.setChain(chain);
 
             String[] tagList = tag.split(";");
@@ -293,7 +296,7 @@ public class ImgWorkController {
 
     @RequestMapping(value = "/saveTrain", method = RequestMethod.POST)
     @ResponseBody
-    public Response saveTrain(String img, String tag) {
+    public Response saveTrain(String img, String tag, String chain) {
         Response resp = new Response();
 
         try {
@@ -303,6 +306,7 @@ public class ImgWorkController {
                 resp.setMsg("img is null");
                 return resp;
             }
+
             if (StringUtils.isBlank(tag)) {
                 resp.setStatus(Response.FAILURE);
                 resp.setMsg("tag is null");
@@ -319,21 +323,26 @@ public class ImgWorkController {
 
             String fileName = getUUID();
 
-            ImgTrainEntity imgEntity = new ImgTrainEntity();
+            ImgEntity imgEntity = new ImgEntity();
             imgEntity.setImg(fileName);
+            imgEntity.setChain(chain);
 
-            String[] tagList = tag.split(";");
+            if (StringUtils.isBlank(tag)) {
+                imgEntity.setTagId(-1);
+                imgEntity.setTag("其他");
+            } else {
+                String[] tagList = tag.split(";");
 
-            for (String tagStr : tagList) {
-                if (StringUtils.isBlank(tagStr)) continue;
-                int type = tagIdMap.get(tagStr);
-                if (type > 0) {
-                    imgEntity.setTagId(type);
-                    imgEntity.setTag(tagStr);
-                    break;
+                for (String tagStr : tagList) {
+                    if (StringUtils.isBlank(tagStr)) continue;
+                    Integer type = tagIdMap.get(tagStr);
+                    if (type != null && type > 0) {
+                        imgEntity.setTagId(type);
+                        imgEntity.setTag(tagStr);
+                        break;
+                    }
                 }
             }
-
 
             String deployFile = imgWorkService.insertTrain(img, imgEntity);
             resp.setStatus(Response.SUCCESS);
@@ -371,13 +380,36 @@ public class ImgWorkController {
         return resp;
     }
 
+    @RequestMapping(value = "/createTrain", method = RequestMethod.GET)
+    @ResponseBody
+    public Response createTrain() {
+        Response resp = new Response();
+        long t1 = System.currentTimeMillis();
+        imgWorkService.createTrainFile();
+        resp.setStatus(1);
+        resp.setMsg("成功，cost：" + (System.currentTimeMillis() - t1));
+        return resp;
+    }
+
+    @RequestMapping(value = "/createTrain2", method = RequestMethod.GET)
+    @ResponseBody
+    public Response createTrain2() throws IOException {
+        Response resp = new Response();
+        long t1 = System.currentTimeMillis();
+        imgWorkService.createTrainFile2();
+        resp.setStatus(1);
+        resp.setMsg("成功，cost：" + (System.currentTimeMillis() - t1));
+        return resp;
+    }
+
+
     //获得当天0点时间
     public static int getCurrentMonthLastDay() {
         Calendar cal = Calendar.getInstance();
         return cal.get(Calendar.DATE);
     }
 
-    private String getUUID(){
+    private String getUUID() {
         String uuid = UUID.randomUUID().toString(); //获取UUID并转化为String对象
         uuid = uuid.replace("-", "");
         return uuid;
