@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50519
 File Encoding         : 65001
 
-Date: 2018-01-07 14:04:54
+Date: 2018-01-14 23:33:36
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -22,13 +22,25 @@ DROP TABLE IF EXISTS `img`;
 CREATE TABLE `img` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `img` varchar(255) NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `tag_id` int(11) NOT NULL,
+  `tag` varchar(16) DEFAULT NULL,
+  `chain` varchar(64) DEFAULT NULL,
+  `title` varchar(100) DEFAULT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4185 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- Records of img
+-- Table structure for img_train
 -- ----------------------------
+DROP TABLE IF EXISTS `img_train`;
+CREATE TABLE `img_train` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `img` varchar(255) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  `tag` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for tag
@@ -39,11 +51,7 @@ CREATE TABLE `tag` (
   `img_id` int(11) NOT NULL,
   `tag` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of tag
--- ----------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user
@@ -52,13 +60,9 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `open_id` varchar(255) DEFAULT NULL,
-  `create_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of user
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for user_fav
@@ -73,10 +77,6 @@ CREATE TABLE `user_fav` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- Records of user_fav
--- ----------------------------
-
--- ----------------------------
 -- Table structure for user_his
 -- ----------------------------
 DROP TABLE IF EXISTS `user_his`;
@@ -84,10 +84,6 @@ CREATE TABLE `user_his` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `img_id` int(11) NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of user_his
--- ----------------------------
