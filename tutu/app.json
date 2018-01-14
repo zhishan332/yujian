@@ -1,0 +1,36 @@
+{
+  "pages":[
+    "pages/index/index",
+    "pages/user/user",
+    "pages/test/test",
+    "pages/logs/logs"
+  ],
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "预见",
+    "navigationBarTextStyle":"black"
+  },
+    "tabBar": {
+      "list": [
+        {
+          "pagePath": "pages/index/index",
+          "text": "预见",
+          "iconPath":"/img/find.png",
+          "selectedIconPath":"/img/findsel.png"
+        },
+        {
+          "pagePath": "pages/test/test",
+          "text": "洗牌",
+          "iconPath": "/img/find.png",
+          "selectedIconPath": "/img/findsel.png"
+        },
+        {
+          "pagePath": "pages/user/user",
+          "text": "我的",
+          "iconPath": "/img/u81.png",
+          "selectedIconPath": "/img/u81sel.png"
+        }
+      ]
+    }
+}

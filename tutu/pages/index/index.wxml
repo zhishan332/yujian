@@ -1,0 +1,13 @@
+<view class="container" bindtouchstart="touchStart" bindtouchmove="touchMove" bindtouchend="touchEnd" >
+
+<block class="box1"  wx:if="{{ currentPage ==1 }}">
+    <view class="img_view"   style="background-image:url('{{url1}}');"></view>
+</block>
+<block class="box2"   wx:if="{{ currentPage ==2 }}">
+    <view class="img_view"  style="background-image:url('{{url2}}');"></view>
+</block>
+<block class="box3"  wx:if="{{ currentPage ==3 }}">
+    <view class="img_view"  style="background-image:url('{{url3}}');"></view>
+</block>
+
+</view>
