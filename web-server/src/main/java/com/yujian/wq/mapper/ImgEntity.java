@@ -11,9 +11,9 @@ import java.sql.Timestamp;
  */
 public class ImgEntity implements Serializable {
 
-    private int id;
+    private Integer id;
     private String img;
-    private int tagId;
+    private Integer tagId;
     private String tag;
     private String chain;
     private String title;
@@ -21,11 +21,11 @@ public class ImgEntity implements Serializable {
     private Timestamp createTime;
 
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -37,27 +37,11 @@ public class ImgEntity implements Serializable {
         this.img = img;
     }
 
-    public String getChain() {
-        return chain;
-    }
-
-    public void setChain(String chain) {
-        this.chain = chain;
-    }
-
-    public Timestamp getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
-    }
-
-    public int getTagId() {
+    public Integer getTagId() {
         return tagId;
     }
 
-    public void setTagId(int tagId) {
+    public void setTagId(Integer tagId) {
         this.tagId = tagId;
     }
 
@@ -67,6 +51,14 @@ public class ImgEntity implements Serializable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getChain() {
+        return chain;
+    }
+
+    public void setChain(String chain) {
+        this.chain = chain;
     }
 
     public String getTitle() {
@@ -83,5 +75,13 @@ public class ImgEntity implements Serializable {
 
     public void setMd5(String md5) {
         this.md5 = md5;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
     }
 }

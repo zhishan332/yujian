@@ -2,11 +2,11 @@ package com.yujian.wq.controller;
 
 import com.yujian.wq.mapper.ImgEntity;
 import com.yujian.wq.mapper.ImgSpiderEntity;
+import com.yujian.wq.mapper.ImgWorkMapper;
 import com.yujian.wq.service.ImgWorkService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -45,7 +45,8 @@ public class ImgWorkController {
     private ImgWorkService imgWorkService;
 
     private static final int DeployFolderNum = 10;
-
+    @Resource
+    private ImgWorkMapper imgWorkMapper;
     @Resource
     private JdbcTemplate jdbcTemplate;
 
@@ -321,7 +322,7 @@ public class ImgWorkController {
 
     @RequestMapping(value = "/saveTrain", method = RequestMethod.POST)
     @ResponseBody
-    public Response saveTrain(String img, String tag, String chain,String title,String md5) {
+    public Response saveTrain(String img, String tag, String chain, String title, String md5) {
         Response resp = new Response();
 
         try {
@@ -337,6 +338,18 @@ public class ImgWorkController {
                 resp.setMsg("tag is null");
                 return resp;
             }
+            if (StringUtils.isBlank(chain)) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("chain is null");
+                return resp;
+            }
+
+            if (StringUtils.isBlank(md5)) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("md5 is null");
+                return resp;
+            }
+
 
             File imgFile = new File(img);
 
@@ -371,8 +384,16 @@ public class ImgWorkController {
                 }
             }
 
+            ImgEntity check = imgWorkMapper.findChain(imgEntity.getChain());
+            if (check != null) {
+                if (!imgEntity.getTagId().equals(check.getTagId())) {
+                    resp.setStatus(Response.FAILURE);
+                    resp.setMsg("同一套图下不能存在两个不同的TAG类型,已有类型:"+(check.getTagId()));
+                    return resp;
+                }
+            }
             String deployFile = imgWorkService.insertTrain(img, imgEntity);
-            //删除爬虫数据库
+            //更新爬虫数据库
             updateImgSpider(imgFile.getName());
             resp.setStatus(Response.SUCCESS);
             resp.setData(deployFile);
@@ -406,7 +427,7 @@ public class ImgWorkController {
         }
 
         imgFile.delete();
-        //删除爬虫数据库
+        //更新爬虫数据库
         updateImgSpider(imgFile.getName());
         return resp;
     }

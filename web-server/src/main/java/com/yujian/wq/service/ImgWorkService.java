@@ -1,8 +1,6 @@
 package com.yujian.wq.service;
 
-import com.yujian.wq.controller.Response;
 import com.yujian.wq.mapper.ImgEntity;
-import com.yujian.wq.mapper.ImgTrainEntity;
 import com.yujian.wq.mapper.ImgWorkMapper;
 import com.yujian.wq.mapper.TagEntity;
 import org.apache.commons.io.FileUtils;
@@ -12,11 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +104,17 @@ public class ImgWorkService {
         int flag = imgWorkMapper.insertImgAndGetId(imgEntity);
 
         if (flag > 0) {
-            int id = imgEntity.getId();
+//            int id = imgEntity.getId();
+            ImgEntity checkData = imgWorkMapper.findChain(imgEntity.getChain());
+            if (checkData == null) {
+//                ImgEntity chainEntity = new ImgEntity();
+//                chainEntity.setTitle(imgEntity.getTitle());
+//                chainEntity.setImg(imgEntity.getImg());
+//                chainEntity.setMd5(imgEntity.getMd5());
+//                chainEntity.setTagId(imgEntity.getTagId());
+//                chainEntity.setChain(imgEntity.getChain());
+                imgWorkMapper.insertChain(imgEntity);
+            }
         }
 
         String fileName = imgEntity.getImg();
@@ -204,7 +209,6 @@ public class ImgWorkService {
         String testPath = trainDataPath + "test";
 
 
-
         for (ImgEntity entity : trainList) {
 
             String name = entity.getImg();
@@ -215,7 +219,6 @@ public class ImgWorkService {
             FileUtils.copyFile(new File(srcPath), new File(destPath));
             FileUtils.write(new File(trainTagPath), name + " " + 2 + "\r\n", true);
         }
-
 
 
         Map<String, Object> param2 = new HashMap<>();

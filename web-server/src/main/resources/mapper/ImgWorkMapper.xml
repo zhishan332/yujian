@@ -38,13 +38,41 @@
 
     <select id="find" resultMap="imgMap">
         select
-        id,img,tag_id,title
+        id,img,tag_id,title,chain
         from img
         <where>
             tag_id = #{tagId,jdbcType=INTEGER}
         </where>
         order by id desc
         limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
+
+    <insert id="insertChain" useGeneratedKeys="true" keyProperty="id" parameterType="ImgEntity">
+       insert into img_chain
+        (img,tag_id,chain,title,md5)
+        values(
+        #{img,jdbcType=VARCHAR},
+        #{tagId,jdbcType=INTEGER},
+        #{chain,jdbcType=VARCHAR},
+        #{title,jdbcType=VARCHAR},
+        #{md5,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="findChain" resultMap="imgMap">
+        select
+        id,img,tag_id,title,chain
+        from img_chain
+        where chain = #{chain,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="findChainByTag" resultMap="imgMap">
+        select
+        id,img,tag_id,title,chain
+        from img_chain
+        where chain = #{chain,jdbcType=VARCHAR} and tag_id =  #{tagId,jdbcType=INTEGER}
+        limit 1
     </select>
 
 

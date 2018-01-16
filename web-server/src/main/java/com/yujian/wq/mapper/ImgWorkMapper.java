@@ -26,4 +26,10 @@ public interface ImgWorkMapper {
 
     public int findTotal();
 
+    public ImgEntity findChain(String chain);
+
+    public int insertChain(ImgEntity imgEntity);
+
+    public ImgEntity findChainByTag(Map<String, Object> param);
+
 }
