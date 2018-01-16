@@ -25,7 +25,7 @@
        </view>
         <view class="detail" >
         <button type="warn" size="{{warnSize}}" loading="{{loading}}" plain="{{plain}}"
-        disabled="{{disabled}}" bindtap="warn"> 充值100元永久使用 </button>
+        disabled="{{disabled}}" bindtap="warn"> 充值100元永久使用(限时促销)</button>
        </view>
        <view class='tip'>说明：充值仅为保持小程序的良好运作，1能量=1图片</view>
     </view>

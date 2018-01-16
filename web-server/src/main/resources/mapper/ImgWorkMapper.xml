@@ -15,13 +15,13 @@
 
     <insert id="insertImgAndGetId" useGeneratedKeys="true" keyProperty="id" parameterType="ImgEntity">
         insert into img
-        (img,tag_id,tag,chain,title)
+        (img,tag_id,chain,title,md5)
         values(
         #{img,jdbcType=VARCHAR},
         #{tagId,jdbcType=INTEGER},
-        #{tag,jdbcType=VARCHAR},
         #{chain,jdbcType=VARCHAR},
-        #{title,jdbcType=VARCHAR}
+        #{title,jdbcType=VARCHAR},
+        #{md5,jdbcType=VARCHAR}
         )
     </insert>
 
@@ -52,6 +52,7 @@
         select
         count(*)
         from img
+        where tag_id !=5
     </select>
 
     <select id="findRandom" resultMap="imgMap">
@@ -62,6 +63,7 @@
         <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>
+        and tag_id !=5
         limit #{num,jdbcType=INTEGER}
     </select>
 

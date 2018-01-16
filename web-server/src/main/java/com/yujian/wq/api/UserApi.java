@@ -60,7 +60,7 @@ public class UserApi {
         Response response = new Response();
         if (total > 0) {
             //TODO 检查ID有没有被看过
-            Random random = new Random();
+            Random random = new Random(System.currentTimeMillis());
             Set<Integer> idList = new HashSet<>();
 
             for (int i = 0; i < 200; i++) {

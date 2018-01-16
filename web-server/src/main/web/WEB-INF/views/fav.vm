@@ -83,6 +83,11 @@
                 </div>
             </li>
             <li>
+                <h3>标题</h3>
+                <input type="text" id="Imgtitle" style="width: 100%">
+                <input type="hidden" id="ImgtMd5" style="width: 100%">
+            </li>
+            <li>
                 <h3>套图</h3>
 
                 <input type="button" class="btn" value="设置连续" onclick="setchain()">
@@ -113,7 +118,7 @@
     var myStorage = localStorage;
     $(document).ready(function () {
         loadImg();
-        getPath();
+        getWorkImg();
         init();
         getTag();
     })
@@ -152,15 +157,18 @@
         $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
     }
 
-    function getPath() {
+    function getWorkImg() {
         var param = {};
         param.order = order;
-        var reqUrl = $("#contextPath").val() + "/tempimg/name?" + '_time' + uuid();
+        var reqUrl = $("#contextPath").val() + "/loadImg?" + '_time' + uuid();
         AjaxUtil.get(reqUrl, param, function (resp) {
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
             } else if (resp.status == 1) {
                 var data = resp.data;
+                $('#Imgtitle').val(data.title);
+                $('#ImgtMd5').val(data.md5);
+                $('#chain').val(data.chain);
                 $('#path').text(data.path);
                 $('#totalNum').text(data.total);
             } else if (resp.status == 0) {
@@ -191,26 +199,6 @@
                 for (var i = 0; i < data.length; i++) {
                     spanStr += "<span>" + data[i] + "</span>"
                 }
-//                for (var key in data) {
-//                    for (var i = 0; i < data[key].length; i++) {
-//                        if(aary !=null){
-//                            var isAdd = true;
-//                            for(var n  =0 ;n < aary.length;n++){
-//                                if( data[key][i] == aary[n]){
-//                                    isAdd = false;
-//                                    break;
-//                                }
-//                            }
-//                            if(isAdd){
-//                                spanStr += "<span>" + data[key][i] + "</span>"
-//                            }
-//                        }else{
-//                            spanStr += "<span>" + data[key][i] + "</span>"
-//                        }
-//
-//                    }
-//                    spanStr += '<hr style="margin-top: 2px;width: 100%">';
-//                }
 
                 $('#tagList').empty();
                 $('#tagList').append(spanStr);
@@ -227,14 +215,14 @@
     function next() {
         order++;
         $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
-        getPath();
+        getWorkImg();
     }
 
     function pre() {
         if (order > 0) order--;
         else order = 0;
         $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
-        getPath();
+        getWorkImg();
     }
 
     function del() {
@@ -248,7 +236,7 @@
                 layer.msg('已删除');
                 if (myStorage.getItem("chain") == '') clearSel();
                 $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
-                getPath();
+                getWorkImg();
             } else if (resp.status == 0) {
                 layer.msg(resp.msg);
             } else {
@@ -299,6 +287,9 @@
             });
         }
         param.tag = taglist;
+        param.title = $('#Imgtitle').val();
+        param.md5 = $('#ImgtMd5').val();
+
         $('#saveInfo').empty();
         var reqUrl = $("#contextPath").val() + "/saveTrain";
         AjaxUtil.post(reqUrl, param, function (resp) {
@@ -309,7 +300,7 @@
                 $('#saveInfo').text(resp.data);
                 if (myStorage.getItem("chain") == '') clearSel();
                 $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());
-                getPath();
+                getWorkImg();
             } else if (resp.status == 0) {
                 layer.msg(resp.msg);
             } else {

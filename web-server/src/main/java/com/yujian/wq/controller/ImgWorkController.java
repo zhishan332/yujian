@@ -1,12 +1,16 @@
 package com.yujian.wq.controller;
 
 import com.yujian.wq.mapper.ImgEntity;
-import com.yujian.wq.mapper.ImgTrainEntity;
-import com.yujian.wq.mapper.TagEntity;
+import com.yujian.wq.mapper.ImgSpiderEntity;
 import com.yujian.wq.service.ImgWorkService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.ParameterizedBeanPropertyRowMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,6 +46,9 @@ public class ImgWorkController {
 
     private static final int DeployFolderNum = 10;
 
+    @Resource
+    private JdbcTemplate jdbcTemplate;
+
     @RequestMapping(value = {"", "index", "/index",}, method = RequestMethod.GET)
     public ModelAndView showIndex(HttpServletResponse response) throws IOException {
         ModelAndView mav = new ModelAndView("fav");
@@ -59,25 +66,21 @@ public class ImgWorkController {
         FileInputStream ips = null;
         try {
             File tempFile = new File(tempPath);
-            File[] list = tempFile.listFiles();
+//            File[] list = tempFile.listFiles();
 
-
-            if (list != null && list.length > 0 && list.length >= (order + 1)) {
-                Arrays.sort(list, new Comparator<File>() {
-                    public int compare(File f1, File f2) {
-                        long diff = f1.lastModified() - f2.lastModified();
-                        if (diff > 0)
-                            return 1;
-                        else if (diff == 0)
-                            return 0;
-                        else
-                            return -1;
-                    }
-                });
-
-                File workFile = list[order];
-                mav.getModel().put("data", workFile.getAbsolutePath());
-                ips = new FileInputStream(workFile);
+            Iterator<File> iter = FileUtils.iterateFiles(tempFile, null, true);
+            int i = 0;
+            while (iter.hasNext()) {
+                File file = iter.next();
+                String name = file.getName();
+                if (name.endsWith("DS_Store")) {
+                    continue;
+                }
+                if (i != order) {
+                    i++;
+                    continue;
+                }
+                ips = new FileInputStream(file);
                 response.setContentType("multipart/form-data");
                 out = response.getOutputStream();
                 //读取文件流
@@ -87,10 +90,9 @@ public class ImgWorkController {
                     out.write(buffer, 0, len);
                 }
                 out.flush();
-            } else {
-                mav = new ModelAndView("error");
-                mav.getModel().put("info", "全部处理完了");
+                break;
             }
+
             return null;
         } catch (Exception e) {
             mav = new ModelAndView("error");
@@ -154,7 +156,7 @@ public class ImgWorkController {
         return null;
     }
 
-    @RequestMapping(value = "/tempimg/name", method = RequestMethod.GET)
+    @RequestMapping(value = "/loadImg", method = RequestMethod.GET)
     @ResponseBody
     public Response findFavList(Integer order) {
         Response resp = new Response();
@@ -163,29 +165,52 @@ public class ImgWorkController {
             File[] list = tempFile.listFiles();
 
 
-            if (list != null && list.length > 0 && list.length >= (order + 1)) {
-                Arrays.sort(list, new Comparator<File>() {
-                    public int compare(File f1, File f2) {
-                        long diff = f1.lastModified() - f2.lastModified();
-                        if (diff > 0)
-                            return 1;
-                        else if (diff == 0)
-                            return 0;
-                        else
-                            return -1;
-                    }
-                });
-
-                File workFile = list[order];
-
-
+            Iterator<File> iter = FileUtils.iterateFiles(tempFile, null, true);
+            int i = 0;
+            while (iter.hasNext()) {
+                File file = iter.next();
+                String name = file.getName();
+                if (name.endsWith("DS_Store")) {
+                    continue;
+                }
+                if (i != order) {
+                    i++;
+                    continue;
+                }
+                ImgSpiderEntity task = readImgSpider(name);
                 resp.setStatus(Response.SUCCESS);
-                Map<String, String> data = new HashMap<>();
-                data.put("path", workFile.getAbsolutePath());
-                data.put("total", String.valueOf((list.length)));
+                Map<String, Object> data = new HashMap<>();
+                data.put("title", task == null ? null : task.getTitle());
+                data.put("md5", task == null ? null : task.getMd5());
+                data.put("chain", task == null ? null : task.getChain());
+                data.put("path", file.getAbsolutePath());
+                data.put("total", String.valueOf((list == null ? 0 : list.length)));
                 resp.setData(data);
                 return resp;
             }
+//            if (list != null && list.length > 0 && list.length >= (order + 1)) {
+//                Arrays.sort(list, new Comparator<File>() {
+//                    public int compare(File f1, File f2) {
+//                        long diff = f1.lastModified() - f2.lastModified();
+//                        if (diff > 0)
+//                            return 1;
+//                        else if (diff == 0)
+//                            return 0;
+//                        else
+//                            return -1;
+//                    }
+//                });
+//
+//                File workFile = list[order];
+//
+//
+//                resp.setStatus(Response.SUCCESS);
+//                Map<String, String> data = new HashMap<>();
+//                data.put("path", workFile.getAbsolutePath());
+//                data.put("total", String.valueOf((list.length)));
+//                resp.setData(data);
+//                return resp;
+//            }
             resp.setStatus(Response.FAILURE);
             resp.setMsg("处理完了");
             return resp;
@@ -229,74 +254,74 @@ public class ImgWorkController {
         return resp;
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    @ResponseBody
-    public Response save(String img, String tag, String chain) {
-        Response resp = new Response();
-
-        try {
-
-            if (StringUtils.isBlank(img)) {
-                resp.setStatus(Response.FAILURE);
-                resp.setMsg("img is null");
-                return resp;
-            }
-            if (StringUtils.isBlank(tag)) {
-                resp.setStatus(Response.FAILURE);
-                resp.setMsg("tag is null");
-                return resp;
-            }
-
-            File imgFile = new File(img);
-
-            if (!imgFile.exists()) {
-                resp.setStatus(Response.FAILURE);
-                resp.setMsg("imgFile is not exists");
-                return resp;
-            }
-
-            String fileName = getUUID();
-            int folder = getCurrentMonthLastDay() % DeployFolderNum;
-
-            ImgEntity imgEntity = new ImgEntity();
-            imgEntity.setImg(fileName);
-            imgEntity.setTagId(folder);
-            if (StringUtils.isNotBlank(chain)) imgEntity.setChain(chain);
-
-            String[] tagList = tag.split(";");
-
-            List<TagEntity> tagEntityList = new ArrayList<>();
-
-            for (String tagStr : tagList) {
-                if (StringUtils.isBlank(tagStr)) continue;
-                TagEntity tagEntity = new TagEntity();
-                tagEntity.setTag(tagStr);
-                tagEntityList.add(tagEntity);
-            }
-
-            if (tagEntityList.isEmpty()) {
-                resp.setStatus(Response.FAILURE);
-                resp.setMsg("tag is null");
-                return resp;
-            }
-
-            String deployFile = imgWorkService.insert(img, imgEntity, tagEntityList);
-            resp.setStatus(Response.SUCCESS);
-            resp.setData(deployFile);
-            resp.setMsg("folder:" + folder + ";file:" + fileName);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.setStatus(Response.FAILURE);
-            resp.setMsg(e.toString());
-        }
-
-        return resp;
-    }
+//    @RequestMapping(value = "/save", method = RequestMethod.POST)
+//    @ResponseBody
+//    public Response save(String img, String tag, String chain) {
+//        Response resp = new Response();
+//
+//        try {
+//
+//            if (StringUtils.isBlank(img)) {
+//                resp.setStatus(Response.FAILURE);
+//                resp.setMsg("img is null");
+//                return resp;
+//            }
+//            if (StringUtils.isBlank(tag)) {
+//                resp.setStatus(Response.FAILURE);
+//                resp.setMsg("tag is null");
+//                return resp;
+//            }
+//
+//            File imgFile = new File(img);
+//
+//            if (!imgFile.exists()) {
+//                resp.setStatus(Response.FAILURE);
+//                resp.setMsg("imgFile is not exists");
+//                return resp;
+//            }
+//
+//            String fileName = getUUID();
+//            int folder = getCurrentMonthLastDay() % DeployFolderNum;
+//
+//            ImgEntity imgEntity = new ImgEntity();
+//            imgEntity.setImg(fileName);
+//            imgEntity.setTagId(folder);
+//            if (StringUtils.isNotBlank(chain)) imgEntity.setChain(chain);
+//
+//            String[] tagList = tag.split(";");
+//
+//            List<TagEntity> tagEntityList = new ArrayList<>();
+//
+//            for (String tagStr : tagList) {
+//                if (StringUtils.isBlank(tagStr)) continue;
+//                TagEntity tagEntity = new TagEntity();
+//                tagEntity.setTag(tagStr);
+//                tagEntityList.add(tagEntity);
+//            }
+//
+//            if (tagEntityList.isEmpty()) {
+//                resp.setStatus(Response.FAILURE);
+//                resp.setMsg("tag is null");
+//                return resp;
+//            }
+//
+//            String deployFile = imgWorkService.insert(img, imgEntity, tagEntityList);
+//            resp.setStatus(Response.SUCCESS);
+//            resp.setData(deployFile);
+//            resp.setMsg("folder:" + folder + ";file:" + fileName);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            resp.setStatus(Response.FAILURE);
+//            resp.setMsg(e.toString());
+//        }
+//
+//        return resp;
+//    }
 
     @RequestMapping(value = "/saveTrain", method = RequestMethod.POST)
     @ResponseBody
-    public Response saveTrain(String img, String tag, String chain) {
+    public Response saveTrain(String img, String tag, String chain,String title,String md5) {
         Response resp = new Response();
 
         try {
@@ -326,10 +351,12 @@ public class ImgWorkController {
             ImgEntity imgEntity = new ImgEntity();
             imgEntity.setImg(fileName);
             imgEntity.setChain(chain);
+            imgEntity.setTitle(title);
+            imgEntity.setMd5(md5);
 
             if (StringUtils.isBlank(tag)) {
                 imgEntity.setTagId(-1);
-                imgEntity.setTag("其他");
+//                imgEntity.setTag("其他");
             } else {
                 String[] tagList = tag.split(";");
 
@@ -338,13 +365,15 @@ public class ImgWorkController {
                     Integer type = tagIdMap.get(tagStr);
                     if (type != null && type > 0) {
                         imgEntity.setTagId(type);
-                        imgEntity.setTag(tagStr);
+//                        imgEntity.setTag(tagStr);
                         break;
                     }
                 }
             }
 
             String deployFile = imgWorkService.insertTrain(img, imgEntity);
+            //删除爬虫数据库
+            updateImgSpider(imgFile.getName());
             resp.setStatus(Response.SUCCESS);
             resp.setData(deployFile);
             resp.setMsg("save to train file:" + fileName);
@@ -377,6 +406,8 @@ public class ImgWorkController {
         }
 
         imgFile.delete();
+        //删除爬虫数据库
+        updateImgSpider(imgFile.getName());
         return resp;
     }
 
@@ -402,6 +433,27 @@ public class ImgWorkController {
         return resp;
     }
 
+    private ImgSpiderEntity readImgSpider(String name) {
+
+        ImgSpiderEntity data = null;
+        try {
+            RowMapper<ImgSpiderEntity> rm = ParameterizedBeanPropertyRowMapper.newInstance(ImgSpiderEntity.class);
+
+            data = jdbcTemplate.queryForObject("select img,title,chain,md5,status from img_spider where img = '" + name + "'", rm);
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("没有数据,请检查爬虫表");
+            return null;
+        }
+
+        if (data != null) {
+            return data;
+        }
+        return null;
+    }
+
+    private void updateImgSpider(String name) {
+        jdbcTemplate.execute("UPDATE img_spider  set status = 2 where img ='" + name + "'");
+    }
 
     //获得当天0点时间
     public static int getCurrentMonthLastDay() {
