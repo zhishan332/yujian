@@ -94,24 +94,58 @@ public class UserApi {
         Response response = new Response();
         Map<String, Object> param = new HashMap<>();
 
-        param.put("tagId", 2);
+//        param.put("tagId", 2);
         param.put("start", start == null ? 0 : start * 20);
         param.put("num", 20);
 
         List<ImgChainEntity> dataList = imgWorkMapper.findChainByTime(param);
 
-        if (dataList != null && !dataList.isEmpty()) {
 
+        if (dataList != null && !dataList.isEmpty()) {
+            Map<String, ImgChainDto> map = new HashMap<>();
             for (ImgChainEntity entity : dataList) {
+                if(entity.getChain().equals("1516203406586")) {
+                    System.out.println(123);
+                }
                 entity.setImg(entity.getTagId() + "/" + entity.getImg());
+
+                if (map.containsKey(entity.getChain())) {
+                    map.get(entity.getChain()).getChainList().add(convert(entity, false));
+                } else {
+                    ImgChainDto ndata = convert(entity, true);
+                    ArrayList<ImgChainDto> list = new ArrayList<>();
+                    list.add(convert(entity, false));
+                    ndata.setChainList(list);
+                    map.put(entity.getChain(), ndata);
+                }
             }
+            List<ImgChainDto> resList = new ArrayList<>();
+            for (Map.Entry<String, ImgChainDto> entry : map.entrySet()) {
+                resList.add(entry.getValue());
+            }
+
+
             response.setStatus(Response.SUCCESS);
-            response.setData(dataList);
+            response.setData(resList);
             return response;
         }
         response.setStatus(Response.FAILURE);
         response.setMsg("没有了");
         return response;
+    }
+
+    private ImgChainDto convert(ImgChainEntity imgChainEntity, boolean first) {
+
+        ImgChainDto dto = new ImgChainDto();
+
+        dto.setImg(imgChainEntity.getImg());
+        if (first) {
+            dto.setChain(imgChainEntity.getChain());
+            dto.setTitle(imgChainEntity.getTitle());
+            dto.setNum(imgChainEntity.getNum());
+        }
+
+        return dto;
     }
 
     @RequestMapping(value = "/img/{tag}/{name}/{token}", method = RequestMethod.GET)

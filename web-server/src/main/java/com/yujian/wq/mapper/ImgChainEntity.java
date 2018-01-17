@@ -2,6 +2,7 @@ package com.yujian.wq.mapper;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * 添加描述
@@ -93,4 +94,5 @@ public class ImgChainEntity implements Serializable {
     public void setNum(Integer num) {
         this.num = num;
     }
+
 }

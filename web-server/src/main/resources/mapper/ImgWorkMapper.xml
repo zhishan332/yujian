@@ -12,7 +12,7 @@
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="imgChainMap" type="ImgEntity">
+    <resultMap id="imgChainMap" type="ImgChainEntity">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="img" column="img" jdbcType="VARCHAR"/>
         <result property="title" column="title" jdbcType="VARCHAR"/>
@@ -45,6 +45,16 @@
         limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
     </select>
 
+    <select id="findByChain" resultMap="imgMap">
+        select
+        id,img
+        from img
+        <where>
+            chain = #{chain,jdbcType=VARCHAR}
+        </where>
+    </select>
+
+
     <insert id="insertChain" useGeneratedKeys="true" keyProperty="id" parameterType="ImgChainEntity">
        insert into img_chain
         (img,tag_id,chain,title,md5,num)
@@ -66,8 +76,13 @@
         limit 1
     </select>
 
-    <update id="updateChain">
-        update user set num = num +1
+    <update id="updateIncreaseChain">
+        update img_chain set num = num +1
+        where chain = #{chain,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateReduceChain">
+        update img_chain set num = num - 1
         where chain = #{chain,jdbcType=VARCHAR}
     </update>
 
@@ -82,10 +97,10 @@
 
     <select id="findChainByTime" resultMap="imgChainMap">
         select
-        id,img,tag_id,title,chain,num
-        from img_chain
-        where tag_id !=#{tagId,jdbcType=INTEGER}
-        order by id desc
+        cc.id,cc.chain,cc.tag_id,bb.img ,cc.title,cc.num
+        from img_chain  cc left join img  bb on cc.chain = bb.chain
+        having cc.tag_id in(1,3) and cc.num >1
+        order by cc.id desc
         limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
     </select>
 

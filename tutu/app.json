@@ -2,7 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/user/user",
-    "pages/test/test",
+    "pages/suggest/suggest",
     "pages/logs/logs"
   ],
   "window": {
@@ -20,7 +20,7 @@
         "selectedIconPath": "/img/findsel.png"
       },
       {
-        "pagePath": "pages/test/test",
+        "pagePath": "pages/suggest/suggest",
         "text": "推荐",
         "iconPath": "/img/find.png",
         "selectedIconPath": "/img/findsel.png"

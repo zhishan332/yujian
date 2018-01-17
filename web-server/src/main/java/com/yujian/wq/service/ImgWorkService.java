@@ -113,19 +113,17 @@ public class ImgWorkService {
 
         if (flag > 0) {
 //            int id = imgEntity.getId();
-            ImgEntity checkData = imgWorkMapper.findChain(imgChainEntity.getChain());
-            if (checkData == null) {
-//                ImgEntity chainEntity = new ImgEntity();
-//                chainEntity.setTitle(imgEntity.getTitle());
-//                chainEntity.setImg(imgEntity.getImg());
-//                chainEntity.setMd5(imgEntity.getMd5());
-//                chainEntity.setTagId(imgEntity.getTagId());
-//                chainEntity.setChain(imgEntity.getChain());
-                imgWorkMapper.insertChain(imgChainEntity);
-            } else {
-                //更新数量
-                imgWorkMapper.updateChain(imgChainEntity);
+            ImgChainEntity checkData = imgWorkMapper.findChain(imgChainEntity.getChain());
+
+            if (4 != imgEntity.getTagId()) {
+                if (checkData == null) {
+                    imgWorkMapper.insertChain(imgChainEntity);
+                } else {
+                    //更新数量
+                    imgWorkMapper.updateIncreaseChain(imgChainEntity);
+                }
             }
+
         }
 
         String fileName = imgChainEntity.getImg();

@@ -385,14 +385,14 @@ public class ImgWorkController {
                 }
             }
             imgEntity.setNum(1);
-            ImgEntity check = imgWorkMapper.findChain(imgEntity.getChain());
-            if (check != null) {
-                if (!imgEntity.getTagId().equals(check.getTagId())) {
-                    resp.setStatus(Response.FAILURE);
-                    resp.setMsg("同一套图下不能存在两个不同的TAG类型,已有类型:"+(check.getTagId()));
-                    return resp;
-                }
-            }
+//            ImgEntity check = imgWorkMapper.findChain(imgEntity.getChain());
+//            if (check != null) {
+//                if (!imgEntity.getTagId().equals(check.getTagId())) {
+//                    resp.setStatus(Response.FAILURE);
+//                    resp.setMsg("同一套图下不能存在两个不同的TAG类型,已有类型:"+(check.getTagId()));
+//                    return resp;
+//                }
+//            }
             String deployFile = imgWorkService.insertTrain(img, imgEntity);
             //更新爬虫数据库
             updateImgSpider(imgFile.getName());
@@ -412,7 +412,7 @@ public class ImgWorkController {
 
     @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
-    public Response del(String path) {
+    public Response del(String path,String chain) {
         Response resp = new Response();
         if (StringUtils.isBlank(path)) {
             resp.setStatus(Response.FAILURE);
@@ -426,6 +426,11 @@ public class ImgWorkController {
             resp.setMsg("imgFile is not exists");
             return resp;
         }
+
+        ImgChainEntity param =new ImgChainEntity();
+        param.setChain(chain);
+
+//        imgWorkMapper.updateReduceChain(param);
 
         imgFile.delete();
         //更新爬虫数据库
