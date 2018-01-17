@@ -1,5 +1,6 @@
 package com.yujian.wq.service;
 
+import com.yujian.wq.mapper.ImgChainEntity;
 import com.yujian.wq.mapper.ImgEntity;
 import com.yujian.wq.mapper.ImgWorkMapper;
 import com.yujian.wq.mapper.TagEntity;
@@ -84,7 +85,7 @@ public class ImgWorkService {
 
 
     @Transactional
-    public String insertTrain(String path, ImgEntity imgEntity) throws IOException {
+    public String insertTrain(String path, ImgChainEntity imgChainEntity) throws IOException {
         File file = new File(path);
 
 
@@ -99,13 +100,20 @@ public class ImgWorkService {
 
         String suffix = oldName.substring(suffixIndex);
 
-        imgEntity.setImg(imgEntity.getImg() + suffix);
+        imgChainEntity.setImg(imgChainEntity.getImg() + suffix);
+
+        ImgEntity imgEntity = new ImgEntity();
+        imgEntity.setImg(imgChainEntity.getImg());
+        imgEntity.setTitle(imgChainEntity.getTitle());
+        imgEntity.setChain(imgChainEntity.getChain());
+        imgEntity.setMd5(imgChainEntity.getMd5());
+        imgEntity.setTagId(imgChainEntity.getTagId());
 
         int flag = imgWorkMapper.insertImgAndGetId(imgEntity);
 
         if (flag > 0) {
 //            int id = imgEntity.getId();
-            ImgEntity checkData = imgWorkMapper.findChain(imgEntity.getChain());
+            ImgEntity checkData = imgWorkMapper.findChain(imgChainEntity.getChain());
             if (checkData == null) {
 //                ImgEntity chainEntity = new ImgEntity();
 //                chainEntity.setTitle(imgEntity.getTitle());
@@ -113,13 +121,16 @@ public class ImgWorkService {
 //                chainEntity.setMd5(imgEntity.getMd5());
 //                chainEntity.setTagId(imgEntity.getTagId());
 //                chainEntity.setChain(imgEntity.getChain());
-                imgWorkMapper.insertChain(imgEntity);
+                imgWorkMapper.insertChain(imgChainEntity);
+            } else {
+                //更新数量
+                imgWorkMapper.updateChain(imgChainEntity);
             }
         }
 
-        String fileName = imgEntity.getImg();
+        String fileName = imgChainEntity.getImg();
 
-        String deployPathFile = deployPath + imgEntity.getTagId() + File.separator + fileName;
+        String deployPathFile = deployPath + imgChainEntity.getTagId() + File.separator + fileName;
 
         FileUtils.copyFile(file, new File(deployPathFile));
 

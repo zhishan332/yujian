@@ -45,5 +45,5 @@
 .tip {
   margin-top: 10px;
   font-size: 11px;
-  text-align: right;
+  text-align: center;
 }

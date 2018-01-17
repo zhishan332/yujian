@@ -15,13 +15,13 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "推荐",
+        "text": "首页",
         "iconPath": "/img/find.png",
         "selectedIconPath": "/img/findsel.png"
       },
       {
         "pagePath": "pages/test/test",
-        "text": "发现",
+        "text": "推荐",
         "iconPath": "/img/find.png",
         "selectedIconPath": "/img/findsel.png"
       },

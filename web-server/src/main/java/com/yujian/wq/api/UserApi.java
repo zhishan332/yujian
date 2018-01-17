@@ -1,8 +1,22 @@
 package com.yujian.wq.api;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yujian.wq.controller.Response;
-import com.yujian.wq.mapper.ImgEntity;
-import com.yujian.wq.mapper.ImgWorkMapper;
+import com.yujian.wq.mapper.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wangqing on 2018/1/9.
@@ -24,15 +42,32 @@ import java.util.*;
 @Controller
 @RequestMapping("/api/user")
 public class UserApi {
+    private static final Logger logger = LoggerFactory.getLogger(UserApi.class);
+
 
     @Resource
     private ImgWorkMapper imgWorkMapper;
     @Value("#{config['img.deploy.path']}")
     private String deployPath;
 
-    @RequestMapping(value = "/getImage", method = RequestMethod.GET)
+    @Value("#{config['wechat.login.url']}")
+    private String wechatLoginUrl;
+
+    @Value("#{config['wechat.app.id']}")
+    private String wechatAppID;
+
+    @Value("#{config['wechat.app.secret']}")
+    private String wechatAppSecret;
+
+    @Value("#{config['init.energy']}")
+    private Integer initEnergy;
+
+    @Resource
+    private UserMapper userMapper;
+
+    @RequestMapping(value = "/loadIndexData", method = RequestMethod.GET)
     @ResponseBody
-    public Response getIndexImage(String openId, Integer start, Integer tag) {
+    public Response loadIndexData(String openId, Integer start, Integer tag) {
         Map<String, Object> param = new HashMap<>();
         param.put("tagId", tag == null ? 2 : tag);
         param.put("start", start == null ? 0 : start * 20);
@@ -52,35 +87,26 @@ public class UserApi {
         return response;
     }
 
-    @RequestMapping(value = "/find", method = RequestMethod.GET)
+    @RequestMapping(value = "/loadChainData", method = RequestMethod.GET)
     @ResponseBody
-    public Response getIndexImage(String openId) {
+    public Response loadChainData(String openId, Integer start) {
 
-        int total = imgWorkMapper.findTotal();
         Response response = new Response();
-        if (total > 0) {
-            //TODO 检查ID有没有被看过
-            Random random = new Random(System.currentTimeMillis());
-            Set<Integer> idList = new HashSet<>();
+        Map<String, Object> param = new HashMap<>();
 
-            for (int i = 0; i < 200; i++) {
-                idList.add(random.nextInt(total - 1) + 1);
-            }
-            Map<String, Object> param = new HashMap<>();
-            param.put("list", idList);
-            param.put("num", 10);
-            List<ImageDto> resList = new ArrayList<>();
-            List<ImgEntity> dataList = imgWorkMapper.findRandom(param);
-            for (ImgEntity entity : dataList) {
-                ImageDto dto = new ImageDto();
-                dto.setUrl(entity.getTagId() + "/" + entity.getImg());
-                dto.setId(entity.getId());
-                dto.setTitle(entity.getTitle());
-                resList.add(dto);
-            }
+        param.put("tagId", 2);
+        param.put("start", start == null ? 0 : start * 20);
+        param.put("num", 20);
 
+        List<ImgChainEntity> dataList = imgWorkMapper.findChainByTime(param);
+
+        if (dataList != null && !dataList.isEmpty()) {
+
+            for (ImgChainEntity entity : dataList) {
+                entity.setImg(entity.getTagId() + "/" + entity.getImg());
+            }
             response.setStatus(Response.SUCCESS);
-            response.setData(resList);
+            response.setData(dataList);
             return response;
         }
         response.setStatus(Response.FAILURE);
@@ -130,4 +156,127 @@ public class UserApi {
     }
 
 
+    /** 涉及登录操作 开始 **/
+
+    /**
+     * 微信会先调用小程序的登录接口小程序再调用微信服务端的接口获取登录信息
+     *
+     * @param code 用户登录凭证（有效期五分钟）。开发者需要在开发者服务器后台调用 api，使用 code 换取 openid 和 session_key 等信息
+     * @return
+     */
+    CloseableHttpClient httpclient = HttpClients.createDefault();
+
+    @RequestMapping(value = "/onLogin", method = RequestMethod.POST)
+    @ResponseBody
+    public Response onLogin(String code) {
+
+        Response response = new Response();
+
+        if (StringUtils.isBlank(code)) {
+            response.setStatus(Response.FAILURE);
+            response.setMsg("login code must be set");
+            return response;
+        }
+
+        String body = null;
+        try {
+            // Get请求
+            HttpGet httpget = new HttpGet(wechatLoginUrl);
+            // 设置参数
+            List<BasicNameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("appid", wechatAppID));
+            params.add(new BasicNameValuePair("secret", wechatAppSecret));
+            params.add(new BasicNameValuePair("js_code", code));
+            params.add(new BasicNameValuePair("grant_type", "authorization_code"));
+            String str = EntityUtils.toString(new UrlEncodedFormEntity(params));
+            httpget.setURI(new URI(httpget.getURI().toString() + "?" + str));
+            // 发送请求
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                @Override
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        HttpEntity entity = response.getEntity();
+                        return entity != null ? EntityUtils.toString(entity) : null;
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+            String responseBody = httpclient.execute(httpget, responseHandler);
+
+            if (StringUtils.isNotBlank(responseBody)) {
+
+                JSONObject json = JSON.parseObject(responseBody);
+                if (json == null || StringUtils.isBlank(json.getString("openid"))) {
+                    response.setStatus(Response.FAILURE);
+                    response.setMsg("登录失败:" + responseBody);
+                } else {
+                    logger.info("user login ,openid:" + json.getString("openid"));
+                    String openId = json.getString("openid");
+                    UserEntity user = userMapper.getUser(openId);
+                    if (null == user) {
+                        UserEntity userInfo = new UserEntity();
+                        userInfo.setOpenId(openId);
+                        userInfo.setEnergy(initEnergy);
+                        userMapper.insertUser(userInfo);
+                    }
+                    response.setStatus(Response.SUCCESS);
+                    response.setData(json);
+                }
+
+            } else {
+                response.setStatus(Response.FAILURE);
+                response.setMsg("没有获取到服务器的响应信息");
+            }
+        } catch (Exception e) {
+            logger.error("请求微信服务器异常", e);
+            response.setStatus(Response.FAILURE);
+            response.setMsg("请求微信服务器异常,e:" + e.getMessage());
+            return response;
+        }
+
+        return response;
+    }
+
+
+//    @RequestMapping(value = "/reduce", method = RequestMethod.POST)
+//    @ResponseBody
+//    public Response reduce(String openId) {
+//        Response response = new Response();
+//        try {
+//            userMapper.reduceEnergy(openId);
+//        } catch (Exception e) {
+//            logger.error("reduceEnergy error", e);
+//        }
+//        response.setStatus(Response.SUCCESS);
+//        return response;
+//    }
+
+
+//    @RequestMapping(value = "/increase", method = RequestMethod.POST)
+//    @ResponseBody
+//    public Response reduce(String openId, Integer num) {
+//
+//        Response response = new Response();
+//        try {
+//            Map<String, Object> param = new HashMap<>();
+//            param.put("openId", openId);
+//            if (num == 1) {
+//                param.put("energy", 30);
+//            } else if (num == 2) {
+//                param.put("energy", 365);
+//            } else if (num == 3) {
+//                param.put("energy", 365 * 500);//500年
+//            }
+//            userMapper.increaseEnergy(param);
+//        } catch (Exception e) {
+//            logger.error("increaseEnergy error", e);
+//        }
+//        response.setStatus(Response.SUCCESS);
+//        return response;
+//    }
 }

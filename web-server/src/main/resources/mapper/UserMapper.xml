@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.yujian.wq.mapper.UserMapper">
+
+    <resultMap id="userMap" type="UserEntity">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="openId" column="openId" jdbcType="VARCHAR"/>
+        <result property="energy" column="energy" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" parameterType="UserEntity">
+		insert into user
+		(open_id,energy)
+		values(
+		#{openId,jdbcType=VARCHAR},
+		#{energy,jdbcType=INTEGER}
+		)
+	</insert>
+
+
+    <select id="getUser" resultMap="userMap">
+		select
+		id,open_id,energy
+		from user
+		where open_id = #{openId,jdbcType=VARCHAR}
+	</select>
+
+    <update id="reduceEnergy">
+        update user set energy = energy -1
+      	where open_id = #{openId,jdbcType=VARCHAR}
+    </update>
+
+
+    <update id="increaseEnergy">
+        update user set energy = energy + #{energy,jdbcType=INTEGER}
+        where open_id = #{openId,jdbcType=VARCHAR}
+    </update>
+
+
+</mapper>

@@ -28,8 +28,12 @@ public interface ImgWorkMapper {
 
     public ImgEntity findChain(String chain);
 
-    public int insertChain(ImgEntity imgEntity);
+    public int insertChain(ImgChainEntity imgChainEntity);
+
+    public int updateChain(ImgChainEntity imgChainEntity);
 
     public ImgEntity findChainByTag(Map<String, Object> param);
+
+    public List<ImgChainEntity> findChainByTime(Map<String, Object> param);
 
 }

@@ -12,6 +12,15 @@
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="imgChainMap" type="ImgEntity">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="img" column="img" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="tagId" column="tag_id" jdbcType="INTEGER"/>
+        <result property="chain" column="chain" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="num" column="num" jdbcType="INTEGER"/>
+    </resultMap>
 
     <insert id="insertImgAndGetId" useGeneratedKeys="true" keyProperty="id" parameterType="ImgEntity">
         insert into img
@@ -25,17 +34,6 @@
         )
     </insert>
 
-
-    <insert id="insertTag" useGeneratedKeys="true" keyProperty="id" parameterType="TagEntity">
-        insert into tag
-        (img_id,tag)
-        values(
-        #{imgId,jdbcType=INTEGER},
-        #{tag,jdbcType=VARCHAR}
-        )
-    </insert>
-
-
     <select id="find" resultMap="imgMap">
         select
         id,img,tag_id,title,chain
@@ -47,19 +45,20 @@
         limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
     </select>
 
-    <insert id="insertChain" useGeneratedKeys="true" keyProperty="id" parameterType="ImgEntity">
+    <insert id="insertChain" useGeneratedKeys="true" keyProperty="id" parameterType="ImgChainEntity">
        insert into img_chain
-        (img,tag_id,chain,title,md5)
+        (img,tag_id,chain,title,md5,num)
         values(
         #{img,jdbcType=VARCHAR},
         #{tagId,jdbcType=INTEGER},
         #{chain,jdbcType=VARCHAR},
         #{title,jdbcType=VARCHAR},
-        #{md5,jdbcType=VARCHAR}
+        #{md5,jdbcType=VARCHAR},
+        #{num,jdbcType=VARCHAR}
         )
     </insert>
 
-    <select id="findChain" resultMap="imgMap">
+    <select id="findChain" resultMap="imgChainMap">
         select
         id,img,tag_id,title,chain
         from img_chain
@@ -67,12 +66,27 @@
         limit 1
     </select>
 
-    <select id="findChainByTag" resultMap="imgMap">
+    <update id="updateChain">
+        update user set num = num +1
+        where chain = #{chain,jdbcType=VARCHAR}
+    </update>
+
+
+    <select id="findChainByTag" resultMap="imgChainMap">
         select
         id,img,tag_id,title,chain
         from img_chain
         where chain = #{chain,jdbcType=VARCHAR} and tag_id =  #{tagId,jdbcType=INTEGER}
         limit 1
+    </select>
+
+    <select id="findChainByTime" resultMap="imgChainMap">
+        select
+        id,img,tag_id,title,chain,num
+        from img_chain
+        where tag_id !=#{tagId,jdbcType=INTEGER}
+        order by id desc
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
     </select>
 
 

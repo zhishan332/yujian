@@ -6,6 +6,7 @@ Page({
    */
   data: {
     userInfo: {},
+    payCode:"http://localhost:8080/statics/img/shoukuan.JPG",
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     warnSize: 'default',

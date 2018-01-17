@@ -9,14 +9,16 @@ import java.sql.Timestamp;
  * @author wangqing
  * @since 2018/1/7
  */
-public class ImgEntity implements Serializable {
+public class ImgChainEntity implements Serializable {
 
     private Integer id;
     private String img;
     private Integer tagId;
+    private String tag;
     private String chain;
     private String title;
     private String md5;
+    private Integer num;
     private Timestamp createTime;
 
 
@@ -42,6 +44,14 @@ public class ImgEntity implements Serializable {
 
     public void setTagId(Integer tagId) {
         this.tagId = tagId;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getChain() {
@@ -74,5 +84,13 @@ public class ImgEntity implements Serializable {
 
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(Integer num) {
+        this.num = num;
     }
 }

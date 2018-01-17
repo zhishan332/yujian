@@ -10,24 +10,15 @@
   
  <view class="card" >
     <view>
-      <view>剩余能量：无限</view>
+      <!-- <view>剩余能量：无限</view>
       <view class="detail" >
         <button type="primary" size="{{primarySize}}" loading="{{loading}}" plain="{{plain}}"
         disabled="{{disabled}}" bindtap="primary"> 每日分享可得1000能量 </button>
-      </view>
-      <view class="detail" >
-        <button type="warn" size="{{warnSize}}" loading="{{loading}}" plain="{{plain}}"
-        disabled="{{disabled}}" bindtap="warn"> 充值1元可得1000能量 </button>
-      </view>
-       <view class="detail" >
-        <button type="warn" size="{{warnSize}}" loading="{{loading}}" plain="{{plain}}"
-        disabled="{{disabled}}" bindtap="warn"> 充值10元可得20000能量 </button>
+      </view> -->
+       <view>
+         <image src="../../img/shoukuan.JPG" mode="aspectFit"></image>
+         <view class='tip'>如果你喜欢这个小程序，请支持它一直运行下去</view>
        </view>
-        <view class="detail" >
-        <button type="warn" size="{{warnSize}}" loading="{{loading}}" plain="{{plain}}"
-        disabled="{{disabled}}" bindtap="warn"> 充值100元永久使用(限时促销)</button>
-       </view>
-       <view class='tip'>说明：充值仅为保持小程序的良好运作，1能量=1图片</view>
     </view>
 </view>
 

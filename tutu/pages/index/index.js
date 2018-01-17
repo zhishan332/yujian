@@ -58,7 +58,8 @@ Page({
   },
   fetchImgs(cid) {
     this.showLoading('加载中...');
-    return request({ method: 'GET', url: util.getUrl('/getImage', [{ start: this.data.page }, { openId: '' }, { tag: '2' }]) });
+    let openid = app.globalData.openid
+    return request({ method: 'GET', url: util.getUrl('/loadIndexData', [{ start: this.data.page }, { openId: openid }, { tag: '2' }]) });
   },
   showPreview(event) {
     if (this.data.showActionsSheet) {
@@ -98,7 +99,7 @@ Page({
     this.setData({ showingActionsSheet: true, inActionImgUrl: event.target.dataset.largesrc });
   },
   saveImage() {
-    this.showLoading('saving image...');
+    this.showLoading('保存中...');
     console.log('download_image_url', this.data.inActionImgUrl);
 
     wx.downloadFile({
@@ -152,7 +153,7 @@ Page({
     }
     if (util.isEmpty(resp.data)) {
       this.setData({ hasMore: false });
-      this.showToast('all loaded...');
+      this.showToast('全部加载完了...');
       this.setData({ page: this.data.page-- });
       return;
     }

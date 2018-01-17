@@ -1,5 +1,6 @@
 package com.yujian.wq.controller;
 
+import com.yujian.wq.mapper.ImgChainEntity;
 import com.yujian.wq.mapper.ImgEntity;
 import com.yujian.wq.mapper.ImgSpiderEntity;
 import com.yujian.wq.mapper.ImgWorkMapper;
@@ -361,7 +362,7 @@ public class ImgWorkController {
 
             String fileName = getUUID();
 
-            ImgEntity imgEntity = new ImgEntity();
+            ImgChainEntity imgEntity = new ImgChainEntity();
             imgEntity.setImg(fileName);
             imgEntity.setChain(chain);
             imgEntity.setTitle(title);
@@ -383,7 +384,7 @@ public class ImgWorkController {
                     }
                 }
             }
-
+            imgEntity.setNum(1);
             ImgEntity check = imgWorkMapper.findChain(imgEntity.getChain());
             if (check != null) {
                 if (!imgEntity.getTagId().equals(check.getTagId())) {

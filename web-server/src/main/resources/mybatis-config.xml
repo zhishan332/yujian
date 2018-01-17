@@ -26,6 +26,7 @@
     <typeAliases>
         <typeAlias alias="ImgEntity" type="com.yujian.wq.mapper.ImgEntity"/>
         <typeAlias alias="TagEntity" type="com.yujian.wq.mapper.TagEntity"/>
+        <typeAlias alias="ImgChainEntity" type="com.yujian.wq.mapper.ImgChainEntity"/>
     </typeAliases>
     <mappers>
         <mapper resource="mapper/ImgWorkMapper.xml"/>
