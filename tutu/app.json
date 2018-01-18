@@ -8,20 +8,20 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "人人都爱",
+    "navigationBarTitleText": "小磨石",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
+        "text": "短文",
         "iconPath": "/img/find.png",
         "selectedIconPath": "/img/findsel.png"
       },
       {
         "pagePath": "pages/suggest/suggest",
-        "text": "推荐",
+        "text": "看妹",
         "iconPath": "/img/find.png",
         "selectedIconPath": "/img/findsel.png"
       },

@@ -40,4 +40,12 @@ public interface ImgWorkMapper {
 
 
     public List<ImgEntity> findByChain(String chain);
+
+    public List<ImgChainEntity> findChainCommon(Map<String, Object> param);
+
+    public int deleteChain(String chain);
+
+    public int deleteImgChain(String chain);
+
+    public int deleteImg(String img);
 }

@@ -76,6 +76,37 @@
         limit 1
     </select>
 
+    <select id="findChainCommon" resultMap="imgChainMap">
+        select
+        id,img,tag_id,title,chain,num
+        from img_chain
+        <where>
+            num>0
+            <if test="chain != null">
+                and chain = #{chain,jdbcType=VARCHAR}
+            </if>
+            <if test="title != null">
+                and title like CONCAT('%','${title}','%' )
+            </if>
+        </where>
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteChain">
+        DELETE from img_chain
+        where chain = #{chain,jdbcType=VARCHAR}
+    </delete>
+
+    <delete id="deleteImgChain">
+        DELETE from img
+        where chain = #{chain,jdbcType=VARCHAR}
+    </delete>
+    <delete id="deleteImg">
+        DELETE from img
+        where img = #{img,jdbcType=VARCHAR}
+    </delete>
+
+
     <update id="updateIncreaseChain">
         update img_chain set num = num +1
         where chain = #{chain,jdbcType=VARCHAR}

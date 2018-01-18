@@ -1,0 +1,209 @@
+<style type="text/css">
+    #tagList span {
+        background: #fff;
+        border: 1px solid green;
+        float: left;
+        color: #000000;
+        font-family: "黑体";
+        font-size: 18px;
+        margin: 3px;
+        width: 90px;
+        text-align: center;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    #chooseTagList span {
+        background: #fff;
+        border: 1px solid green;
+        float: left;
+        color: #000000;
+        font-family: "黑体";
+        font-size: 18px;
+        margin: 3px;
+        width: 90px;
+        text-align: center;
+        overflow: hidden;
+        padding: 10px;
+    }
+
+    .btn {
+        width: 100px;
+        height: 40px;
+        margin: 5px;
+        line-height: 30px;
+        padding: 5px;
+        font-family: "黑体";
+        font-size: 18px;
+        -webkit-appearance: none; /*解决iphone safari上的圆角问题*/
+    }
+
+    .btn_sm {
+        width: 80px;
+        height: 30px;
+        font-family: "黑体";
+        font-size: 16px;
+    }
+
+    ul li {
+        width: 100%;
+        float: left;
+    }
+
+    .img-show {
+        margin-top: 3px;
+        max-height: 400px;
+        float: left
+    }
+</style>
+
+<div style="padding: 10px;width: 98%">
+
+    <div style="width: 100%;float: left;border-left:1px solid #808080;padding: 10px;min-height: 800px">
+
+        <ul style="margin-top: 0;padding-left: 10px">
+            <li>
+                标题:<input type="text" id="chainTitle" style="width: 20%">
+                系列ID:<input type="text" id="chainInfo" style="width: 20%">
+                页码:<input type="text" id="pageInfo" style="width: 20%" value="0">
+                <input type="button" class="btn" value="加载" onclick="find()">
+
+                <ul style="margin-top: 0;padding-left: 10px" id="dataList">
+                    <li>
+                        <p>名称:ddddddd.jpg chain:34234234 数量:3333 时间:13123123
+                            <input type="button" class="btn" value="删除系列" onclick="delDeploy()">
+                        </p>
+                        <ul id="imgList">
+                            <li>
+                                <img src="http://f.hiphotos.baidu.com/image/pic/item/503d269759ee3d6db032f61b48166d224e4ade6e.jpg"
+                                     class="img-show"/>
+                                <input type="button" class="btn" style="float: left" value="删除" onclick="delDeploy()">
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#dataList").delegate(".delChain", "click", function () {
+            var chain = $(this).attr('chain');
+        });
+        $("#dataList").delegate(".delImg", "click", function () {
+            var chain = $(this).attr('chain');
+            var img = $(this).attr('img');
+        });
+
+    })
+
+    function find() {
+        var param = {};
+        param.title = $('#chainTitle').val();
+        param.chain = $('#chainInfo').val();
+        param.start = $('#pageInfo').val();
+
+        var reqUrl = $("#contextPath").val() + "/adm/find?" + '_time' + uuid();
+        AjaxUtil.get(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+                var data = resp.data;
+
+                $('#dataList').empty();
+
+                for (var i = 0; i < data.length; i++) {
+                    var title = data[i].title;
+                    var num = data[i].num;
+                    var chain = data[i].chain;
+                    var headinfo = '<li><p>';
+                    headinfo += title + "(" + num + "P)";
+                    headinfo += '<input type="button" chain="' + chain + '" class="btn delChain" value="删除系列">';
+                    headinfo += '</p>';
+                    var imgHtml = '';
+                    headinfo += '<ul>';
+                    var imglist = data[i].chainList;
+                    for (var n = 0; n < imglist.length; n++) {
+                        var info = imglist[n];
+                        imgHtml += '<li id="' + info.img + '" class="imgBox">';
+                        var src = info.img;
+                        src = 'http://f.hiphotos.baidu.com/image/pic/item/503d269759ee3d6db032f61b48166d224e4ade6e.jpg';
+                        imgHtml += '<img class="img-show" src="' + src + '">';
+                        imgHtml += '<input type="button" chain="' + chain + '" img ="' + src + '" class="btn delImg" style="float: left" value="删除" >'
+                        imgHtml += '</li>';
+
+                    }
+                    headinfo += imgHtml;
+                    headinfo += '</ul>';
+                    headinfo += '</li>';
+                    $('#dataList').append(headinfo);
+                }
+
+
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
+    }
+
+    function delChain(chain) {
+        var param = {};
+        param.chain = chain;
+        var reqUrl = $("#contextPath").val() + "/deleteChain";
+        AjaxUtil.post(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+                layer.msg('已删除');
+                find();
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
+    }
+
+    function delImg(img,chain) {
+        var param = {};
+        param.chain = chain;
+        param.img = img;
+        var reqUrl = $("#contextPath").val() + "/deleteImg";
+        AjaxUtil.post(reqUrl, param, function (resp) {
+            if (resp == undefined || resp == null) {
+                layer.alert("系统异常", {icon: 5});
+            } else if (resp.status == 1) {
+                layer.msg('已删除');
+                find();
+            } else if (resp.status == 0) {
+                layer.msg(resp.msg);
+            } else {
+                var obj = eval("(" + resp + ")");
+                layer.alert(obj.msg, {icon: 5});
+            }
+        });
+    }
+
+    function uuid() {
+        var s = [];
+        var hexDigits = "0123456789abcdef";
+        for (var i = 0; i < 36; i++) {
+            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+        }
+        s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+        s[8] = s[13] = s[18] = s[23] = "-";
+
+        var uuid = s.join("");
+        return uuid;
+    }
+</script>
+

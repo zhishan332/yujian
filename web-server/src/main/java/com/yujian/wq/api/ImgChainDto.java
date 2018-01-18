@@ -11,7 +11,6 @@ import java.util.List;
  * @since 2018/1/7
  */
 public class ImgChainDto implements Serializable {
-
     private String img;
     private String chain;
     private String title;
