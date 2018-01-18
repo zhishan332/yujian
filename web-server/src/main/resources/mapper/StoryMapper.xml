@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- Created with MTool.  -->
+<mapper namespace="com.yujian.wq.mapper.StoryMapper">
+
+    <resultMap id="StoryMap" type="StoryEntity">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="summary" column="summary" jdbcType="VARCHAR"/>
+        <result property="author" column="author" jdbcType="VARCHAR"/>
+        <result property="tag" column="tag" jdbcType="VARCHAR"/>
+        <result property="hot" column="hot" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="find" resultMap="StoryMap">
+        select
+        id,title,summary,author,tag,hot,create_time
+        from story
+        ORDER by id desc
+        limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
+    </select>
+
+    <select id="get" resultMap="StoryMap">
+        select
+        id,title,content,author,tag,hot,create_time
+        from story
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+
+</mapper>

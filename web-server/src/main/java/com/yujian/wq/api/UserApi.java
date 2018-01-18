@@ -64,6 +64,8 @@ public class UserApi {
 
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private StoryMapper storyMapper;
 
     @RequestMapping(value = "/loadIndexData", method = RequestMethod.GET)
     @ResponseBody
@@ -104,7 +106,7 @@ public class UserApi {
         if (dataList != null && !dataList.isEmpty()) {
             Map<String, ImgChainDto> map = new HashMap<>();
             for (ImgChainEntity entity : dataList) {
-                if(entity.getChain().equals("1516203406586")) {
+                if (entity.getChain().equals("1516203406586")) {
                     System.out.println(123);
                 }
                 entity.setImg(entity.getTagId() + "/" + entity.getImg());
@@ -277,19 +279,43 @@ public class UserApi {
     }
 
 
-//    @RequestMapping(value = "/reduce", method = RequestMethod.POST)
-//    @ResponseBody
-//    public Response reduce(String openId) {
-//        Response response = new Response();
-//        try {
-//            userMapper.reduceEnergy(openId);
-//        } catch (Exception e) {
-//            logger.error("reduceEnergy error", e);
-//        }
-//        response.setStatus(Response.SUCCESS);
-//        return response;
-//    }
+    @RequestMapping(value = "/findStory", method = RequestMethod.GET)
+    @ResponseBody
+    public Response findStory(String openId, Integer start) {
+        Response response = new Response();
+        try {
+            Map<String, Object> param = new HashMap<>();
+            param.put("start", start == null ? 0 : start * 20);
+            param.put("num", 10);
+            List<StoryEntity> list = storyMapper.find(param);
 
+            response.setStatus(Response.SUCCESS);
+            response.setData(list);
+
+        } catch (Exception e) {
+            logger.error("findStory error", e);
+            response.setStatus(Response.FAILURE);
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/getStory", method = RequestMethod.GET)
+    @ResponseBody
+    public Response getStory(String openId, Integer id) {
+        Response response = new Response();
+        try {
+            StoryEntity data = storyMapper.get(id);
+
+            response.setStatus(Response.SUCCESS);
+            response.setData(data);
+
+        } catch (Exception e) {
+            logger.error("getStory error", e);
+            response.setStatus(Response.FAILURE);
+        }
+
+        return response;
+    }
 
 //    @RequestMapping(value = "/increase", method = RequestMethod.POST)
 //    @ResponseBody
