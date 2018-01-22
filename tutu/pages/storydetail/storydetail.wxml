@@ -1,0 +1,16 @@
+<!--index.wxml-->
+<view style='padding:8px'>
+    <view class="title">{{title}} </view>
+
+      <view class ="content">
+        <rich-text  nodes="{{content}}" bindtap="tap"></rich-text>
+      </view>
+
+      <view class='footer1'>
+        <view class='tag'  wx:for="{{tags}}" wx:for-item="tagitem"           wx:key="unique2">{{tagitem}}</view>
+      </view>
+      
+      <view class='footer2'>
+       {{hot}}条热度  来源:{{author}}
+      </view>
+  </view>

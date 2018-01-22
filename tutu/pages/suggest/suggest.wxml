@@ -1,0 +1,19 @@
+<!--index.wxml-->
+<view>
+  <view class="card" wx:for="{{items}}">
+     
+        <view wx:for="{{item.childList}}" >
+            <view bindtap="onItemClick" data-url="{{item.img}}">
+              <image class="image" mode="aspectFill" src="{{item.img}}" />
+            </view>
+        </view>
+   
+      <view class="title">{{item.title}} </view>
+
+      <view class='film-rating'>
+        204 条热度
+      </view>
+
+    </view>
+
+  </view>

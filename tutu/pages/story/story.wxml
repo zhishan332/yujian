@@ -1,0 +1,19 @@
+<!--index.wxml-->
+<view>
+  <view class="card" wx:for="{{items}}"  wx:key="unique" data-index="{{item.id}}"  bindtap='onItemClick'>
+        
+      <view class="title">{{item.title}} </view>
+
+      <view>
+        <rich-text class ="content" nodes="{{item.nodes}}" bindtap="tap"></rich-text>
+      </view>
+
+      <view class='footer1'>
+        <view class='tag'  wx:for="{{item.tags}}" wx:for-item="tagitem"  wx:key="unique2">{{tagitem}}</view>
+      </view>
+      
+      <view class='footer2'>
+       {{item.hot}}条热度  来源:{{item.author}}
+      </view>
+    </view>
+  </view>
