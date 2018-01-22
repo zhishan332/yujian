@@ -14,6 +14,18 @@
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StoryEntity">
+        insert into story
+        (title,content,summary,author,tag,hot)
+        values(
+        #{title,jdbcType=VARCHAR},
+        #{content,jdbcType=VARCHAR},
+        #{summary,jdbcType=VARCHAR},
+        #{author,jdbcType=VARCHAR},
+        #{tag,jdbcType=VARCHAR},
+        #{hot,jdbcType=INTEGER}
+        )
+    </insert>
 
     <select id="find" resultMap="StoryMap">
         select

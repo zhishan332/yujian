@@ -11,6 +11,8 @@ import java.util.Map;
 @Repository
 public interface StoryMapper {
 
+    public int insert(StoryEntity entity);
+
     public List<StoryEntity> find(Map<String, Object> param);
 
     public StoryEntity get(Integer id);

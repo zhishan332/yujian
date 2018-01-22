@@ -285,7 +285,7 @@ public class UserApi {
         Response response = new Response();
         try {
             Map<String, Object> param = new HashMap<>();
-            param.put("start", start == null ? 0 : start * 20);
+            param.put("start", start == null ? 0 : start * 10);
             param.put("num", 10);
             List<StoryEntity> list = storyMapper.find(param);
 
