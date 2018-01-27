@@ -23,13 +23,11 @@ from bs4 import BeautifulSoup
 import lxml
 from PIL import Image
 import os
-import pycurl
 from io import *
 import wget
 import codecs
 import random
 
-from textrank4zh import TextRank4Keyword, TextRank4Sentence
 
 # import pysocks
 path = '/Users/wangqing/Documents/code/wechat/img/'

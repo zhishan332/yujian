@@ -2,7 +2,8 @@ from PIL import Image
 import os
 
 # path = 'I:/doc/tutu/img/2/'
-path = '/Users/wangqing/Documents/code/wechat/img/'
+# path = '/Users/wangqing/Documents/code/wechat/img/'
+path = '/Users/wangqing/Documents/code/my/data/deeplearn/img/'
 
 for file in os.listdir(path):
 

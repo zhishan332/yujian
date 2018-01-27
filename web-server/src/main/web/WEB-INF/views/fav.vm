@@ -6,11 +6,11 @@
         color: #000000;
         font-family: "黑体";
         font-size: 18px;
-        margin: 3px;
-        width: 90px;
+        margin: 10px;
+        width: 150px;
         text-align: center;
         overflow: hidden;
-        padding: 10px;
+        padding: 20px;
     }
 
    #chooseTagList span {
@@ -68,19 +68,20 @@
             <li>
                 <h3>标签</h3>
 
-                <div style="width: 100%;float: left" id="tagList">
+                <div style="width: 100%;" id="tagList">
                     #if($!{tagList})
                         #foreach($entry in  $tagList)
                             <span>$!{entry}</span>
+##                            <input type="button" class="btn" value="$!{entry}" onclick="toSave(this)">
                         #end
                     #end
                 </div>
-                <h3 style="width: 50%;float: left">已选 <input type="button" class="btn" value="清除已选"
-                                                             onclick="clearSel()"></h3>
-
-
-                <div style="width: 100%;float: left" id="chooseTagList">
-                </div>
+##                <h3 style="width: 50%;float: left">已选 <input type="button" class="btn" value="清除已选"
+##                                                             onclick="clearSel()"></h3>
+##
+##
+##                <div style="width: 100%;float: left" id="chooseTagList">
+##                </div>
             </li>
             <li>
                 <h3>标题</h3>
@@ -123,6 +124,10 @@
         getTag();
     })
 
+    // function toSave(th) {
+    //     var tt= $(th).val();
+    //     alert(tt);
+    // }
     function init() {
         $("#tagList").delegate("span", "click", function () {
 //            $('#chooseTagList span').each(function (i) {
@@ -296,7 +301,7 @@
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
             } else if (resp.status == 1) {
-                layer.msg('保存成功');
+                layer.msg('保存成功' ,{time:500});
                 $('#saveInfo').text(resp.data);
                 if (myStorage.getItem("chain") == '') clearSel();
                 $('#npcImg').attr('src', '/tempimg?order=' + order + '&_time' + uuid());

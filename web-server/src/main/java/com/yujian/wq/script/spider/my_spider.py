@@ -19,17 +19,20 @@ from bs4 import BeautifulSoup
 import lxml
 from PIL import Image
 import os
+import ssl
 
 # ---------------------全局配置区开始---------------------
 # path = 'I:/doc/tutu/img/2/'
-path = '/Users/wangqing/Documents/code/wechat/img/'
+# path = '/Users/wangqing/Documents/code/wechat/img/'
+path = '/Users/wangqing/Documents/code/my/data/deeplearn/img/'
+
 dbmv_url = "http://www.dbmeinv.com"
 jiandan_url = "http://jandan.net"
 # phantomjs = r'I:\program\phantomjs-2.1.1-windows\bin\phantomjs.exe'
 phantomjs = r'/Users/wangqing/Documents/program/phantomjs-2.1.1-macosx/bin/phantomjs'
 
-
 # ---------------------全局配置区结束---------------------
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 # ---------------------图片处理区开始---------------------
@@ -41,7 +44,7 @@ def handle_img(arry):
         if has_md5(conn, md5str):
             isOk = False
             break
-    print('是否允许写入：%s' % isOk)
+    print('是否允许写入：' + str(isOk) + "；md5:" + str(md5str))
     if isOk:
         for data in arry:
             write_db(conn, data['name'], data['title'], data['chain'], data['md5'])
@@ -108,7 +111,11 @@ def crawl_dbmv_loop(index):
         print("error:%s" % url)
         return
     for conurl in conurls:
-        html_con = oper.open(conurl.get("href"))
+        try:
+            html_con = oper.open(conurl.get("href"))
+        except:
+            print("异常越过：" + conurl)
+            continue
         print("html_con:%s" % conurl.get("href"))
         conObj = BeautifulSoup(html_con)
         # print("conObj:%s"%conObj)
@@ -201,7 +208,6 @@ def start_jiandan(start, end):
                 img_url.append(http_url)
                 # print("http:%s" % z)
 
-
         for j in img_url:
             try:
                 r = requests.get(j)
@@ -230,5 +236,5 @@ def start_jiandan(start, end):
 
 # --------------控制台开始---------------
 # 抓取dbmeinv
-crawl_dbmv_loop( 233)
-# start_jiandan(1,5)
+crawl_dbmv_loop(1027)
+# start_jiandan(1,200)

@@ -16,6 +16,8 @@ public class ImgChainDto implements Serializable {
     private String title;
     private Integer num;
 
+    private Integer tagId;
+
     private List<ImgChainDto> chainList;
 
     public String getImg() {
@@ -56,5 +58,13 @@ public class ImgChainDto implements Serializable {
 
     public void setChainList(List<ImgChainDto> chainList) {
         this.chainList = chainList;
+    }
+
+    public Integer getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Integer tagId) {
+        this.tagId = tagId;
     }
 }

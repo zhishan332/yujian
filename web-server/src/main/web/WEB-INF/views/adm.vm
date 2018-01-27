@@ -55,6 +55,9 @@
         max-height: 400px;
         float: left
     }
+    .typpp{
+        color: red;
+    }
 </style>
 
 <div style="padding: 10px;width: 98%">
@@ -75,8 +78,9 @@
                         </p>
                         <ul id="imgList">
                             <li>
-                                <img src="http://f.hiphotos.baidu.com/image/pic/item/503d269759ee3d6db032f61b48166d224e4ade6e.jpg"
+                                <img src=""
                                      class="img-show"/>
+                                <span class="red"></span>
                                 <input type="button" class="btn" style="float: left" value="删除" onclick="delDeploy()">
                             </li>
                         </ul>
@@ -93,10 +97,12 @@
     $(document).ready(function () {
         $("#dataList").delegate(".delChain", "click", function () {
             var chain = $(this).attr('chain');
+            delChain(chain);
         });
         $("#dataList").delegate(".delImg", "click", function () {
             var chain = $(this).attr('chain');
             var img = $(this).attr('img');
+            delImg(img,chain);
         });
 
     })
@@ -130,9 +136,21 @@
                     for (var n = 0; n < imglist.length; n++) {
                         var info = imglist[n];
                         imgHtml += '<li id="' + info.img + '" class="imgBox">';
-                        var src = info.img;
-                        src = 'http://f.hiphotos.baidu.com/image/pic/item/503d269759ee3d6db032f61b48166d224e4ade6e.jpg';
+                        var img = info.tagId+"/"+info.img;
+                        var src ='/viewimg?fill=1&deployFile=' + img + '&_time' + uuid();
+                        // src = 'http://f.hiphotos.baidu.com/image/pic/item/503d269759ee3d6db032f61b48166d224e4ade6e.jpg';
                         imgHtml += '<img class="img-show" src="' + src + '">';
+                        var tagType = info.tagId;
+                        if(tagType ==1){
+                            tagType='妹纸';
+                        }else if(tagType ==2){
+                            tagType='长长';
+                        }else if(tagType ==3){
+                            tagType='不合格';
+                        }else{
+                            tagType='未知';
+                        }
+                        imgHtml += '<span class="red">' + tagType + '</span>';
                         imgHtml += '<input type="button" chain="' + chain + '" img ="' + src + '" class="btn delImg" style="float: left" value="删除" >'
                         imgHtml += '</li>';
 
@@ -156,7 +174,7 @@
     function delChain(chain) {
         var param = {};
         param.chain = chain;
-        var reqUrl = $("#contextPath").val() + "/deleteChain";
+        var reqUrl = $("#contextPath").val() + "/adm/deleteChain";
         AjaxUtil.post(reqUrl, param, function (resp) {
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});
@@ -176,7 +194,7 @@
         var param = {};
         param.chain = chain;
         param.img = img;
-        var reqUrl = $("#contextPath").val() + "/deleteImg";
+        var reqUrl = $("#contextPath").val() + "/adm/deleteImg";
         AjaxUtil.post(reqUrl, param, function (resp) {
             if (resp == undefined || resp == null) {
                 layer.alert("系统异常", {icon: 5});

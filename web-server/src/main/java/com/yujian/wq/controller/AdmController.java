@@ -130,6 +130,7 @@ public class AdmController {
 
         ImgChainDto dto = new ImgChainDto();
         dto.setImg(imgChainEntity.getImg());
+        dto.setTagId(imgChainEntity.getTagId());
         return dto;
     }
 

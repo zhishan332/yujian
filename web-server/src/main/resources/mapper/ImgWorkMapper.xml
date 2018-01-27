@@ -47,7 +47,7 @@
 
     <select id="findByChain" resultMap="imgMap">
         select
-        id,img
+        id,img,tag_id
         from img
         <where>
             chain = #{chain,jdbcType=VARCHAR}
@@ -89,6 +89,7 @@
                 and title like CONCAT('%','${title}','%' )
             </if>
         </where>
+        order by id desc
         limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
     </select>
 

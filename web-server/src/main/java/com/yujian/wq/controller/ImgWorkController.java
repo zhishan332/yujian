@@ -119,10 +119,13 @@ public class ImgWorkController {
     }
 
     @RequestMapping(value = {"/viewimg"}, method = RequestMethod.GET)
-    public String showImg(String deployFile, HttpServletResponse response) {
+    public String showImg(String deployFile,String fill, HttpServletResponse response) {
         ServletOutputStream out = null;
         FileInputStream ips = null;
         try {
+            if(fill!=null && "1".equals(fill)){
+                deployFile = deployPath+deployFile;
+            }
             File viewFile = new File(deployFile);
             if (!viewFile.exists()) return null;
             ips = new FileInputStream(viewFile);
