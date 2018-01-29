@@ -156,7 +156,7 @@ public class ImgWorkService {
                 }
 
                 String xunlianPath = trainDataPath + "train";
-                String testPath = trainDataPath + "test";
+                String testPath = trainDataPath + "val";
                 for (String str : resList) {
                     String path = deployPath + str;
 
@@ -164,7 +164,7 @@ public class ImgWorkService {
                     Map<String, Object> param = new HashMap<>();
                     param.put("tagId", Integer.parseInt(str));
                     param.put("start", 0);
-                    param.put("num", 80);
+                    param.put("num", 700);
                     List<ImgEntity> trainList = imgWorkMapper.find(param);
 
                     for (ImgEntity entity : trainList) {
@@ -181,8 +181,8 @@ public class ImgWorkService {
 
                     Map<String, Object> param2 = new HashMap<>();
                     param2.put("tagId", Integer.parseInt(str));
-                    param2.put("start", 81);
-                    param2.put("num", 40);
+                    param2.put("start", 701);
+                    param2.put("num", 300);
                     List<ImgEntity> trainList2 = imgWorkMapper.find(param2);
 
                     for (ImgEntity entity : trainList2) {
@@ -211,11 +211,11 @@ public class ImgWorkService {
         Map<String, Object> param = new HashMap<>();
         param.put("tagId", 2);
         param.put("start", 0);
-        param.put("num", 400);
+        param.put("num", 2000);
         List<ImgEntity> trainList = imgWorkMapper.find(param);
 
         String xunlianPath = trainDataPath + "train";
-        String testPath = trainDataPath + "test";
+        String testPath = trainDataPath + "val";
 
 
         for (ImgEntity entity : trainList) {
@@ -226,14 +226,14 @@ public class ImgWorkService {
             String destPath = xunlianPath + File.separator + name;
 
             FileUtils.copyFile(new File(srcPath), new File(destPath));
-            FileUtils.write(new File(trainTagPath), name + " " + 2 + "\r\n", true);
+            FileUtils.write(new File(trainTagPath), name + " " + 0 + "\r\n", true);
         }
 
 
         Map<String, Object> param2 = new HashMap<>();
         param2.put("tagId", 2);
         param2.put("start", 0);
-        param2.put("num", 400);
+        param2.put("num", 2000);
         List<ImgEntity> trainList2 = imgWorkMapper.findNotIn(param2);
 
         for (ImgEntity entity : trainList2) {
@@ -251,8 +251,8 @@ public class ImgWorkService {
 
         Map<String, Object> paramTest1 = new HashMap<>();
         paramTest1.put("tagId", 2);
-        paramTest1.put("start", 401);
-        paramTest1.put("num", 120);
+        paramTest1.put("start", 2001);
+        paramTest1.put("num", 400);
         List<ImgEntity> testList1 = imgWorkMapper.find(paramTest1);
 
         for (ImgEntity entity : testList1) {
@@ -263,14 +263,14 @@ public class ImgWorkService {
             String destPath = testPath + File.separator + name;
 
             FileUtils.copyFile(new File(srcPath), new File(destPath));
-            FileUtils.write(new File(trainTagTestPath), name + " " + 2 + "\r\n", true);
+            FileUtils.write(new File(trainTagTestPath), name + " " + 0 + "\r\n", true);
         }
 
 
         Map<String, Object> paramTest2 = new HashMap<>();
         paramTest2.put("tagId", 2);
-        paramTest2.put("start", 401);
-        paramTest2.put("num", 120);
+        paramTest2.put("start", 2001);
+        paramTest2.put("num", 400);
         List<ImgEntity> testList2 = imgWorkMapper.findNotIn(paramTest2);
 
         for (ImgEntity entity : testList2) {

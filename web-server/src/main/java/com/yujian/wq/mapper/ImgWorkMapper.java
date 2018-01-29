@@ -48,4 +48,11 @@ public interface ImgWorkMapper {
     public int deleteImgChain(String chain);
 
     public int deleteImg(String img);
+
+    public int updateTag(Map<String, Object> param);
+
+    public ImgEntity getImgByMd5(Map<String, Object> param);
+
+    public List<ImgChainEntity> report();
+
 }

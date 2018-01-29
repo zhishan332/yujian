@@ -5,6 +5,7 @@ import com.yujian.wq.mapper.ImgEntity;
 import com.yujian.wq.mapper.ImgSpiderEntity;
 import com.yujian.wq.mapper.ImgWorkMapper;
 import com.yujian.wq.service.ImgWorkService;
+import com.yujian.wq.utils.HtmlUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,11 +51,20 @@ public class ImgWorkController {
     private ImgWorkMapper imgWorkMapper;
     @Resource
     private JdbcTemplate jdbcTemplate;
+    private Map<String, Integer> tagIdMap = new HashMap<>();
 
     @RequestMapping(value = {"", "index", "/index",}, method = RequestMethod.GET)
     public ModelAndView showIndex(HttpServletResponse response) throws IOException {
         ModelAndView mav = new ModelAndView("fav");
         mav.getModel().put("pageName", "首页");
+
+        return mav;
+    }
+
+    @RequestMapping(value = "/cu", method = RequestMethod.GET)
+    public ModelAndView showCu(HttpServletResponse response) throws IOException {
+        ModelAndView mav = new ModelAndView("cu");
+        mav.getModel().put("pageName", "粗筛");
 
         return mav;
     }
@@ -119,12 +129,12 @@ public class ImgWorkController {
     }
 
     @RequestMapping(value = {"/viewimg"}, method = RequestMethod.GET)
-    public String showImg(String deployFile,String fill, HttpServletResponse response) {
+    public String showImg(String deployFile, String fill, HttpServletResponse response) {
         ServletOutputStream out = null;
         FileInputStream ips = null;
         try {
-            if(fill!=null && "1".equals(fill)){
-                deployFile = deployPath+deployFile;
+            if (fill != null && "1".equals(fill)) {
+                deployFile = deployPath + deployFile;
             }
             File viewFile = new File(deployFile);
             if (!viewFile.exists()) return null;
@@ -161,6 +171,48 @@ public class ImgWorkController {
         return null;
     }
 
+    @RequestMapping(value = {"/workImg"}, method = RequestMethod.GET)
+    public String workImg(String file, HttpServletResponse response) {
+        ServletOutputStream out = null;
+        FileInputStream ips = null;
+        try {
+
+            File viewFile = new File(file);
+            if (!viewFile.exists()) return null;
+            ips = new FileInputStream(viewFile);
+            response.setContentType("multipart/form-data");
+            out = response.getOutputStream();
+            //读取文件流
+            int len = 0;
+            byte[] buffer = new byte[1024 * 10];
+            while ((len = ips.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            out.flush();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ips != null) {
+                try {
+                    ips.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return null;
+    }
+
+
     @RequestMapping(value = "/loadImg", method = RequestMethod.GET)
     @ResponseBody
     public Response findFavList(Integer order) {
@@ -185,7 +237,7 @@ public class ImgWorkController {
                 ImgSpiderEntity task = readImgSpider(name);
                 resp.setStatus(Response.SUCCESS);
                 Map<String, Object> data = new HashMap<>();
-                data.put("title", task == null ? null : task.getTitle());
+                data.put("title", task == null ? null : HtmlUtils.getTextFromHtml(task.getTitle()));
                 data.put("md5", task == null ? null : task.getMd5());
                 data.put("chain", task == null ? null : task.getChain());
                 data.put("path", file.getAbsolutePath());
@@ -227,7 +279,58 @@ public class ImgWorkController {
         return resp;
     }
 
-    private Map<String, Integer> tagIdMap = new HashMap<>();
+    @RequestMapping(value = "/loadManyImg", method = RequestMethod.GET)
+    @ResponseBody
+    public Response loadManyImg() {
+        Response resp = new Response();
+        try {
+            File tempFile = new File(tempPath);
+            File[] list = tempFile.listFiles();
+
+
+            Iterator<File> iter = FileUtils.iterateFiles(tempFile, null, true);
+            List<Map<String, Object>> resList = new ArrayList<>();
+            int i = 0;
+            while (iter.hasNext()) {
+                File file = iter.next();
+                String name = file.getName();
+                if (name.endsWith("DS_Store")) {
+                    continue;
+                }
+
+
+                ImgSpiderEntity task = readImgSpider(name);
+                resp.setStatus(Response.SUCCESS);
+                Map<String, Object> data = new HashMap<>();
+                data.put("title", task == null ? null : HtmlUtils.getTextFromHtml(task.getTitle()));
+                data.put("md5", task == null ? null : task.getMd5());
+                data.put("chain", task == null ? null : task.getChain());
+                data.put("path", file.getAbsolutePath());
+                data.put("total", String.valueOf((list == null ? 0 : list.length)));
+
+                resList.add(data);
+                i++;
+
+                if (i > 100) break;
+            }
+            resp.setData(resList);
+            resp.setStatus(Response.SUCCESS);
+
+            if (resList.size() <= 0) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("处理完了");
+            }
+
+            return resp;
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(Response.FAILURE);
+            resp.setMsg(e.toString());
+        }
+        return resp;
+    }
+
+
 
     @RequestMapping(value = "/taglist", method = RequestMethod.GET)
     @ResponseBody
@@ -357,11 +460,6 @@ public class ImgWorkController {
 
             File imgFile = new File(img);
 
-            if (!imgFile.exists()) {
-                resp.setStatus(Response.FAILURE);
-                resp.setMsg("imgFile is not exists");
-                return resp;
-            }
 
             String fileName = getUUID();
 
@@ -380,7 +478,7 @@ public class ImgWorkController {
                 for (String tagStr : tagList) {
                     if (StringUtils.isBlank(tagStr)) continue;
                     Integer type = tagIdMap.get(tagStr);
-                    if (type != null && type > 0) {
+                    if (type != null && type >= 0) {
                         imgEntity.setTagId(type);
 //                        imgEntity.setTag(tagStr);
                         break;
@@ -396,6 +494,31 @@ public class ImgWorkController {
 //                    return resp;
 //                }
 //            }
+
+            if (!imgFile.exists()) {
+                resp.setStatus(Response.FAILURE);
+                resp.setMsg("imgFile is not exists");
+
+                Map<String, Object> param = new HashMap<>();
+                param.put("md5", md5);
+                param.put("tagId", imgEntity.getTagId());
+                int up = imgWorkMapper.updateTag(param);
+                if (up > 0) {
+                    ImgEntity oldObj = imgWorkMapper.getImgByMd5(param);
+                    String oldPath = deployPath+oldObj.getTagId()+File.separator+oldObj.getImg();
+                    String nnPath = deployPath+imgEntity.getTagId()+File.separator+oldObj.getImg();
+
+                    FileUtils.moveFile(new File(oldPath),new File(nnPath));
+
+                    resp.setStatus(Response.SUCCESS);
+                    resp.setMsg("更新成功");
+                } else {
+                    resp.setStatus(Response.FAILURE);
+                    resp.setMsg("更新失败文件不存在");
+                }
+                return resp;
+            }
+
             String deployFile = imgWorkService.insertTrain(img, imgEntity);
             //更新爬虫数据库
             updateImgSpider(imgFile.getName());
@@ -415,7 +538,7 @@ public class ImgWorkController {
 
     @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
-    public Response del(String path,String chain) {
+    public Response del(String path, String chain) {
         Response resp = new Response();
         if (StringUtils.isBlank(path)) {
             resp.setStatus(Response.FAILURE);
@@ -430,7 +553,7 @@ public class ImgWorkController {
             return resp;
         }
 
-        ImgChainEntity param =new ImgChainEntity();
+        ImgChainEntity param = new ImgChainEntity();
         param.setChain(chain);
 
 //        imgWorkMapper.updateReduceChain(param);
@@ -462,6 +585,46 @@ public class ImgWorkController {
         resp.setMsg("成功，cost：" + (System.currentTimeMillis() - t1));
         return resp;
     }
+
+
+    @RequestMapping(value = "/report", method = RequestMethod.GET)
+    @ResponseBody
+    public Response report() throws IOException {
+        Response resp = new Response();
+        File tempFile = new File(tempPath);
+        File[] listTmp = tempFile.listFiles();
+        int taskNum = listTmp != null ? listTmp.length : 0;
+        List<ImgChainEntity> res = imgWorkMapper.report();
+        Map<Integer,String> tagMap = new HashMap<>();
+        if(res!=null){
+            List<String> list = null;
+            try {
+                list = FileUtils.readLines(new File(tagPath), "utf-8");
+                if (list != null) {
+
+                    for (String str : list) {
+                        if (StringUtils.isNotBlank(str)) {
+                            String[] data = str.split(" ");
+                            tagMap.put(Integer.valueOf(data[1]), data[0]);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            for(ImgChainEntity entity:res){
+                entity.setTag(tagMap.get(entity.getTagId()));
+            }
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("taskNum",taskNum);
+        map.put("group",res);
+        resp.setData(map);
+        resp.setStatus(1);
+        return resp;
+    }
+
 
     private ImgSpiderEntity readImgSpider(String name) {
 
@@ -495,6 +658,20 @@ public class ImgWorkController {
         String uuid = UUID.randomUUID().toString(); //获取UUID并转化为String对象
         uuid = uuid.replace("-", "");
         return uuid;
+    }
+
+    public String stripHtml(String content) {
+// <p>段落替换为换行
+        content = content.replaceAll("<p .*?>", "\r\n");
+// <br><br/>替换为换行
+        content = content.replaceAll("<br\\s*/?>", "\r\n");
+// 去掉其它的<>之间的东西
+        content = content.replaceAll("\\<.*?>", "");
+// 去掉空格
+        content = content.replaceAll("&nbsp;", "");
+// 还原HTML
+// content = HTMLDecoder.decode(content);
+        return content;
     }
 
     public static void main(String[] args) {

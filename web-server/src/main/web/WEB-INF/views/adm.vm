@@ -141,11 +141,11 @@
                         // src = 'http://f.hiphotos.baidu.com/image/pic/item/503d269759ee3d6db032f61b48166d224e4ade6e.jpg';
                         imgHtml += '<img class="img-show" src="' + src + '">';
                         var tagType = info.tagId;
-                        if(tagType ==1){
+                        if(tagType ==0){
                             tagType='妹纸';
-                        }else if(tagType ==2){
+                        }else if(tagType ==1){
                             tagType='长长';
-                        }else if(tagType ==3){
+                        }else if(tagType ==2){
                             tagType='不合格';
                         }else{
                             tagType='未知';

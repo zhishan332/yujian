@@ -22,14 +22,14 @@ import os
 import ssl
 
 # ---------------------全局配置区开始---------------------
-# path = 'I:/doc/tutu/img/2/'
+path = 'I:/doc/deeplearn/img2/'
 # path = '/Users/wangqing/Documents/code/wechat/img/'
-path = '/Users/wangqing/Documents/code/my/data/deeplearn/img/'
+# path = '/Users/wangqing/Documents/code/my/data/deeplearn/img/'
 
 dbmv_url = "http://www.dbmeinv.com"
 jiandan_url = "http://jandan.net"
-# phantomjs = r'I:\program\phantomjs-2.1.1-windows\bin\phantomjs.exe'
-phantomjs = r'/Users/wangqing/Documents/program/phantomjs-2.1.1-macosx/bin/phantomjs'
+phantomjs = r'I:\program\phantomjs-2.1.1-windows\bin\phantomjs.exe'
+# phantomjs = r'/Users/wangqing/Documents/program/phantomjs-2.1.1-macosx/bin/phantomjs'
 
 # ---------------------全局配置区结束---------------------
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -37,8 +37,9 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 # ---------------------图片处理区开始---------------------
 def handle_img(arry):
-    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='yujian', charset="utf8")
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='yujian', charset="utf8")
     isOk = True
+    md5str =''
     for data in arry:
         md5str = data['md5']
         if has_md5(conn, md5str):
@@ -56,7 +57,10 @@ def handle_img(arry):
 
 def write_db(conn, img, title, chain, md5):
     cur = conn.cursor()
-    cur.execute("insert into img_spider (img,title,chain,md5) values(%s,%s,%s,%s)", [img, title, chain, md5])
+    try:
+        cur.execute("insert into img_spider (img,title,chain,md5) values(%s,%s,%s,%s)", [img, title, chain, md5])
+    except:
+        pass
     conn.commit()
     cur.close()
 
@@ -144,6 +148,7 @@ def crawl_dbmv_loop(index):
                     # jpg.flush()
                     f = open(filePath, 'rb')
                     md5 = md5_for_file(f)
+                    f.close()
                     d = {'path': filePath, 'name': img_name, 'title': title, 'chain': chain, 'md5': md5}
                     arry.append(d)
             except Exception as e:
@@ -236,5 +241,5 @@ def start_jiandan(start, end):
 
 # --------------控制台开始---------------
 # 抓取dbmeinv
-crawl_dbmv_loop(1027)
+crawl_dbmv_loop(1491)
 # start_jiandan(1,200)

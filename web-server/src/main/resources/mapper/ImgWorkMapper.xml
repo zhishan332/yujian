@@ -119,6 +119,15 @@
     </update>
 
 
+    <update id="updateTag">
+        update img set tag_id =  #{tagId,jdbcType=INTEGER}
+        where md5 =#{md5,jdbcType=VARCHAR}
+    </update>
+
+    <select id="getImgByMd5" resultMap="imgMap">
+        select id,img,tag_id from img where  md5 =#{md5,jdbcType=VARCHAR}
+    </select>
+
     <select id="findChainByTag" resultMap="imgChainMap">
         select
         id,img,tag_id,title,chain
@@ -168,4 +177,7 @@
         limit #{start,jdbcType=INTEGER},#{num,jdbcType=INTEGER}
     </select>
 
+    <select id="report" resultMap="imgChainMap">
+        select count(1) num,tag_id from img group  by tag_id;
+    </select>
 </mapper>
